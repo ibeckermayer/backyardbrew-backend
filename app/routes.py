@@ -23,6 +23,5 @@ def index():
 
 @app.route('/register', methods=['POST'])
 def register():
-    content = request.json
-    print(content)
-    return content or "No Content!"
+    pass                        # use request.json
+

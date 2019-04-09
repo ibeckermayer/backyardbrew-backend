@@ -1,5 +1,4 @@
 from flask import jsonify
-from app import app
 
 
 class EmailAlreadyInUse(Exception):
@@ -17,6 +16,5 @@ class EmailAlreadyInUse(Exception):
         return response
 
 
-@app.errorhandler(EmailAlreadyInUse)
 def handle_email_already_in_use(error):
     return error.to_response()

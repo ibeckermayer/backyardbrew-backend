@@ -1,21 +1,43 @@
 from flask import Flask
-from config import Config
+import config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restful import Api
 
-app = Flask(__name__)
-app.config.from_object(Config)  # configure app from Config obj
-db = SQLAlchemy(app)  # initialize database for app
-migrate = Migrate(app, db)  # initialize migration manager for app + db
-api = Api(app)
+db = SQLAlchemy()
+migrate = Migrate()
+api = Api()
 
-from app import models, resources
 
-api.add_resource(resources.UserRegistration, '/registration')
-api.add_resource(resources.UserLogin, '/login')
-api.add_resource(resources.UserLogoutAccess, '/logout/access')
-api.add_resource(resources.UserLogoutRefresh, '/logout/refresh')
-api.add_resource(resources.TokenRefresh, '/token/refresh')
-api.add_resource(resources.AllUsers, '/users')
-api.add_resource(resources.SecretResource, '/secret')
+def create_app(config_class=config.ProductionConfig):
+    # imports
+    from app import resources
+    from app import errors
+
+    # configure app
+    app = Flask(__name__)
+    app.config.from_object(config_class)
+
+    # register error handlers
+    app.register_error_handler(errors.EmailAlreadyInUse,
+                               errors.handle_email_already_in_use)
+
+    # register db
+    db.init_app(app)
+
+    # register migration
+    migrate.init_app(app, db)
+
+    # register api resources
+    api.add_resource(resources.UserRegistration, '/registration')
+    api.add_resource(resources.UserLogin, '/login')
+    api.add_resource(resources.UserLogoutAccess, '/logout/access')
+    api.add_resource(resources.UserLogoutRefresh, '/logout/refresh')
+    api.add_resource(resources.TokenRefresh, '/token/refresh')
+    api.add_resource(resources.AllUsers, '/users')
+    api.add_resource(resources.SecretResource, '/secret')
+
+    # initialize api
+    api.init_app(app)
+
+    return app

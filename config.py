@@ -18,7 +18,7 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     """Configurations for Testing, with a separate test database."""
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'postgresql://backyardbrew:backyardbrew@localhost/backyardbrew_test_db'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/backyardbrew_test_db'
     DEBUG = True
 
 class StagingConfig(Config):

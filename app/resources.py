@@ -7,7 +7,9 @@ from app.errors import EmailAlreadyInUse
 
 class UserRegistration(Resource):
     def post(self):
-        user = User.from_json(request.get_json())
+        user_json = request.get_json()
+        user = User(user_json['first_name'], user_json['last_name'],
+                    user_json['email'], user_json['password'])
         db.session.add(user)
         try:
             db.session.commit()

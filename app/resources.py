@@ -1,12 +1,19 @@
 from flask_restful import Resource, request
+from sqlalchemy.exc import IntegrityError
 from app.models import User
+from app import db, api
+from app.errors import EmailAlreadyInUse
 
 
 class UserRegistration(Resource):
     def post(self):
-        # TODO: ask Josiah: should I check that the request has a json? More generally, if I check the incoming form on the frontend, is it bad practice not to check it (redundantly) on the backend? Or are there enough problems with requests that I should check to ensure it was sent properly?
         user = User.from_json(request.get_json())
-        return {'message': 'User registration'}
+        db.session.add(user)
+        try:
+            db.session.commit()
+        except IntegrityError as e:
+            raise EmailAlreadyInUse()
+        return {'message': 'User {} created successfully'.format(user.email)}
 
 
 class UserLogin(Resource):

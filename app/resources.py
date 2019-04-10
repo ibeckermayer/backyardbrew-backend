@@ -8,13 +8,12 @@ from app.errors import EmailAlreadyInUse
 class UserRegistration(Resource):
     def post(self):
         user_json = request.get_json()
+        if User.query.filter_by(email=user_json['email']).first() is not None:
+            raise EmailAlreadyInUse()
         user = User(user_json['first_name'], user_json['last_name'],
                     user_json['email'], user_json['password'])
         db.session.add(user)
-        try:
-            db.session.commit()
-        except IntegrityError as e:
-            raise EmailAlreadyInUse()
+        db.session.commit()
         return {'message': 'User {} created successfully'.format(user.email)}
 
 

@@ -48,3 +48,6 @@ class AllUsers(Resource):
 class SecretResource(Resource):
     def get(self):
         return {'answer': 42}
+
+
+resources_dict = {'/api/registration': UserRegistration}

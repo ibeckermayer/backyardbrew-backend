@@ -3,7 +3,7 @@ from flask import jsonify
 
 class EmailAlreadyInUse(Exception):
     status_code = 409
-    message = 'email address already in use'
+    message = 'Email address already in use'
 
     def __init__(self):
         Exception.__init__(self)

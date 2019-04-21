@@ -19,8 +19,12 @@ def create_app(config_name):
     app.config.from_object(app_config[config_name])
 
     # register error handlers
+    # TODO: can be optimized with an error dict, similar to resources_dict below
     app.register_error_handler(errors.EmailAlreadyInUse,
                                errors.handle_email_already_in_use)
+    app.register_error_handler(errors.UserDNE, errors.handle_user_dne)
+    app.register_error_handler(errors.PasswordIncorrect,
+                               errors.handle_password_incorrect)
 
     # register db
     db.init_app(app)

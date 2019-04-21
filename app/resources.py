@@ -2,7 +2,7 @@ from flask_restful import Resource, request
 from sqlalchemy.exc import IntegrityError
 from app.models import User
 from app import db, api
-from app.errors import EmailAlreadyInUse
+from app.errors import EmailAlreadyInUse, UserDNE, PasswordIncorrect
 
 
 class UserRegistration(Resource):
@@ -19,7 +19,16 @@ class UserRegistration(Resource):
 
 class UserLogin(Resource):
     def post(self):
-        return {'message': 'User login'}
+        user_json = request.get_json()
+        user = User.query.filter_by(email=user_json['email']).first()
+        if not user:
+            raise UserDNE(user_json['email'])
+        if user.check_password(user_json['password']):
+            return {
+                'message': 'User {} logged in successfully'.format(user.email)
+            }
+        else:
+            raise PasswordIncorrect(user.email)
 
 
 class UserLogoutAccess(Resource):

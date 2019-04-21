@@ -50,4 +50,7 @@ class SecretResource(Resource):
         return {'answer': 42}
 
 
-resources_dict = {'/api/registration': UserRegistration}
+resources_dict = {
+    '/api/registration': UserRegistration,
+    '/api/login': UserLogin
+}

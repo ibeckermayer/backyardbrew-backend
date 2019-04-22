@@ -6,6 +6,7 @@ To run the development server, make sure environment variables are set properly 
 export FLASK_APP="backend.py"
 export SECRET="my-super-secret"
 export APP_SETTINGS="development"
+export FLASK_ENV=development # necessary separate from config.py to instantiate debugger/autoreload
 export DATABASE_URL="postgresql://localhost/backyardbrew_dev_db"
 ```
 `APP_SETTINGS` correspond to the dictionary at the bottom of the `config.py` file

@@ -9,7 +9,9 @@ migrate = Migrate()
 api = Api()
 
 
-def create_app(config_name):
+def create_app(config_name: str) -> Flask:
+    '''App Factory pattern implementation. This makes it so we can create the app with different configurations
+    throughout the codebase, which is especially useful for testing. '''
     # imports
     from app import resources
     from app import errors

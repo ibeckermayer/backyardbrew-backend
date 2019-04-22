@@ -1,10 +1,13 @@
+from flask.testing import FlaskClient
+from flask_sqlalchemy import SQLAlchemy
 import requests
 import json
 
 ENDPOINT = '/api/registration'
 
 
-def test_registration(session_client, function_empty_db):
+def test_registration(session_client: FlaskClient,
+                      function_empty_db: SQLAlchemy):
     test_data = dict(first_name='isaiah',
                      last_name='becker-mayer',
                      email='ibeckermayer@gmail.com',
@@ -20,7 +23,8 @@ def test_registration(session_client, function_empty_db):
         'message'] == 'User ibeckermayer@gmail.com created successfully'
 
 
-def test_dual_registration(session_client, function_empty_db):
+def test_dual_registration(session_client: FlaskClient,
+                           function_empty_db: SQLAlchemy):
     test_data = dict(first_name='isaiah',
                      last_name='becker-mayer',
                      email='ibeckermayer@gmail.com',

@@ -1,10 +1,13 @@
+'''common fixtures to be used throughout the testing suite'''
 import pytest
 import json
+from flask.testing import FlaskClient
+from flask_sqlalchemy import SQLAlchemy
 from app import create_app, db
 
 
 @pytest.fixture(scope='session')
-def session_client():
+def session_client() -> FlaskClient:
     '''Create app and test client for the testing session'''
     # create app with testing config
     app = create_app('testing')
@@ -17,7 +20,7 @@ def session_client():
 
 
 @pytest.fixture(scope='function')
-def function_empty_db():
+def function_empty_db() -> SQLAlchemy:
     '''Create all tables before each test and then remove all tables after each test'''
     db.create_all()
     yield db
@@ -26,7 +29,7 @@ def function_empty_db():
 
 
 @pytest.fixture(scope='module')
-def module_registered_user_db(session_client):
+def module_registered_user_db(session_client: FlaskClient) -> SQLAlchemy:
     db.create_all()
     test_data = dict(first_name='isaiah',
                      last_name='becker-mayer',

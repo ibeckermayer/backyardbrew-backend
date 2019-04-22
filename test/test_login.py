@@ -1,10 +1,13 @@
+from flask.testing import FlaskClient
+from flask_sqlalchemy import SQLAlchemy
 import requests
 import json
 
 ENDPOINT = '/api/login'
 
 
-def test_login_success(session_client, module_registered_user_db):
+def test_login_success(session_client: FlaskClient,
+                       module_registered_user_db: SQLAlchemy):
     test_data = dict(email='ibeckermayer@gmail.com', password='test_password')
 
     response = session_client.post(ENDPOINT,
@@ -18,7 +21,8 @@ def test_login_success(session_client, module_registered_user_db):
         'message'] == 'User ibeckermayer@gmail.com logged in successfully'
 
 
-def test_login_user_dne(session_client, module_registered_user_db):
+def test_login_user_dne(session_client: FlaskClient,
+                        module_registered_user_db: SQLAlchemy):
     test_data = dict(email='dne@gmail.com', password='test_password')
 
     response = session_client.post(ENDPOINT,
@@ -31,7 +35,8 @@ def test_login_user_dne(session_client, module_registered_user_db):
     assert response_json['message'] == 'User dne@gmail.com doesn\'t exist'
 
 
-def test_login_wrong_pwd(session_client, module_registered_user_db):
+def test_login_wrong_pwd(session_client: FlaskClient,
+                         module_registered_user_db: SQLAlchemy):
     test_data = dict(email='ibeckermayer@gmail.com', password='wrong_password')
 
     response = session_client.post(ENDPOINT,

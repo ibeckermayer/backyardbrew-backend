@@ -3,10 +3,12 @@ from config import app_config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restful import Api
+from flask_jwt_extended import JWTManager
 
 db = SQLAlchemy()
 migrate = Migrate()
 api = Api()
+jwt = JWTManager()
 
 
 def create_app(config_name: str) -> Flask:
@@ -33,6 +35,9 @@ def create_app(config_name: str) -> Flask:
 
     # register migration
     migrate.init_app(app, db)
+
+    # register JWTManager
+    jwt.init_app(app)
 
     # register api resources
     for path, resourceObj in resources.resources_dict.items():

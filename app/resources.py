@@ -3,7 +3,9 @@ from sqlalchemy.exc import IntegrityError
 from app.models import User
 from app import db, api
 from app.errors import EmailAlreadyInUse, UserDNE, PasswordIncorrect
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import (create_access_token, create_refresh_token,
+                                jwt_required, jwt_refresh_token_required,
+                                get_jwt_identity)
 
 
 class UserRegistration(Resource):
@@ -36,11 +38,20 @@ class UserLogin(Resource):
 
 
 class Account(Resource):
-    method_decorators = [jwt_required]
-
+    @jwt_required
     def get(self):
         email = get_jwt_identity()
         return {'msg': 'Account data for User {}'.format(email)}
+
+
+class Refresh(Resource):
+    @jwt_refresh_token_required
+    def post(self):
+        email = get_jwt_identity()
+        return {
+            'msg': 'Refresh successful for User {}'.format(email),
+            'access_token': create_access_token(identity=email)
+        }
 
 
 class UserLogoutAccess(Resource):
@@ -74,5 +85,6 @@ class SecretResource(Resource):
 resources_dict = {
     '/api/registration': UserRegistration,
     '/api/login': UserLogin,
-    '/api/account': Account
+    '/api/account': Account,
+    '/api/refresh': Refresh
 }

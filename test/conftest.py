@@ -1,19 +1,24 @@
 '''common fixtures to be used throughout the testing suite'''
 import pytest
 import json
+from flask import Flask
 from flask.testing import FlaskClient
 from flask_sqlalchemy import SQLAlchemy
 from app import create_app, db
 
 
 @pytest.fixture(scope='session')
-def session_client() -> FlaskClient:
-    '''Create app and test client for the testing session'''
-    # create app with testing config
+def session_app() -> Flask:
+    '''Create app for testing session'''
     app = create_app('testing')
-    client = app.test_client()
-    # create and push onto context
-    ctx = app.app_context()
+    return app
+
+
+@pytest.fixture(scope='session')
+def session_client(session_app: Flask) -> FlaskClient:
+    '''Create test client for the testing session'''
+    client = session_app.test_client()
+    ctx = session_app.app_context()
     ctx.push()
     yield client
     ctx.pop()

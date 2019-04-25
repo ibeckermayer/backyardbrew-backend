@@ -3,6 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from app.models import User
 from app import db, api
 from app.errors import EmailAlreadyInUse, UserDNE, PasswordIncorrect
+from flask_jwt_extended import create_access_token
 
 
 class UserRegistration(Resource):
@@ -20,12 +21,15 @@ class UserRegistration(Resource):
 class UserLogin(Resource):
     def post(self):
         user_json = request.get_json()
-        user = User.query.filter_by(email=user_json['email']).first()
+        email = user_json['email']
+        user = User.query.filter_by(email=email).first()
         if not user:
-            raise UserDNE(user_json['email'])
+            raise UserDNE(email)
         if user.check_password(user_json['password']):
+            access_token = create_access_token(identity=user.email)
             return {
-                'message': 'User {} logged in successfully'.format(user.email)
+                'message': 'User {} logged in successfully'.format(user.email),
+                'access_token': access_token
             }
         else:
             raise PasswordIncorrect(user.email)

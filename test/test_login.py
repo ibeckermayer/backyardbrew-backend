@@ -19,6 +19,7 @@ def test_login_success(session_client: FlaskClient,
     assert status_code == 200
     assert response_json[
         'message'] == 'User ibeckermayer@gmail.com logged in successfully'
+    assert response_json.get('access_token') != None
 
 
 def test_login_user_dne(session_client: FlaskClient,

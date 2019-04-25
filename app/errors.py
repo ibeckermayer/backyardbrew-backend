@@ -4,14 +4,14 @@ from flask import jsonify
 
 class EmailAlreadyInUse(Exception):
     status_code = 409
-    message = 'Email address already in use'
+    msg = 'Email address already in use'
 
     def __init__(self):
         Exception.__init__(self)
 
     def to_response(self) -> dict:
         response_dict = dict()
-        response_dict['message'] = self.message
+        response_dict['msg'] = self.msg
         response = jsonify(response_dict)
         response.status_code = self.status_code
         return response
@@ -23,15 +23,15 @@ def handle_email_already_in_use(error: Exception) -> dict:
 
 class UserDNE(Exception):
     status_code = 404
-    message = ''
+    msg = ''
 
     def __init__(self, email: str):
         Exception.__init__(self)
-        self.message = 'User {} doesn\'t exist'.format(email)
+        self.msg = 'User {} doesn\'t exist'.format(email)
 
     def to_response(self) -> dict:
         response_dict = dict()
-        response_dict['message'] = self.message
+        response_dict['msg'] = self.msg
         response = jsonify(response_dict)
         response.status_code = self.status_code
         return response
@@ -43,15 +43,15 @@ def handle_user_dne(error: Exception) -> dict:
 
 class PasswordIncorrect(Exception):
     status_code = 401
-    message = ''
+    msg = ''
 
     def __init__(self, email: str):
         Exception.__init__(self)
-        self.message = 'Password for user {} incorrect'.format(email)
+        self.msg = 'Password for user {} incorrect'.format(email)
 
     def to_response(self) -> dict:
         response_dict = dict()
-        response_dict['message'] = self.message
+        response_dict['msg'] = self.msg
         response = jsonify(response_dict)
         response.status_code = self.status_code
         return response

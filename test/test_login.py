@@ -18,7 +18,7 @@ def test_login_success(sess_client: FlaskClient,
 
     assert status_code == 200
     assert response_json[
-        'message'] == 'User ibeckermayer@gmail.com logged in successfully'
+        'msg'] == 'User ibeckermayer@gmail.com logged in successfully'
     assert response_json.get('access_token') != None
 
 
@@ -33,7 +33,7 @@ def test_login_user_dne(sess_client: FlaskClient,
     response_json = json.loads(response.data)
 
     assert status_code == 404
-    assert response_json['message'] == 'User dne@gmail.com doesn\'t exist'
+    assert response_json['msg'] == 'User dne@gmail.com doesn\'t exist'
 
 
 def test_login_wrong_pwd(sess_client: FlaskClient,
@@ -47,4 +47,4 @@ def test_login_wrong_pwd(sess_client: FlaskClient,
     response_json = json.loads(response.data)
     assert status_code == 401
     assert response_json[
-        'message'] == 'Password for user ibeckermayer@gmail.com incorrect'
+        'msg'] == 'Password for user ibeckermayer@gmail.com incorrect'

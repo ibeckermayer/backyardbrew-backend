@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from app.models import User
 from app import db, api
 from app.errors import EmailAlreadyInUse, UserDNE, PasswordIncorrect
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 
 class UserRegistration(Resource):
@@ -15,7 +15,7 @@ class UserRegistration(Resource):
                     user_json['email'], user_json['password'])
         db.session.add(user)
         db.session.commit()
-        return {'message': 'User {} created successfully'.format(user.email)}
+        return {'msg': 'User {} created successfully'.format(user.email)}
 
 
 class UserLogin(Resource):
@@ -28,34 +28,42 @@ class UserLogin(Resource):
         if user.check_password(user_json['password']):
             access_token = create_access_token(identity=user.email)
             return {
-                'message': 'User {} logged in successfully'.format(user.email),
+                'msg': 'User {} logged in successfully'.format(user.email),
                 'access_token': access_token
             }
         else:
             raise PasswordIncorrect(user.email)
 
 
+class Account(Resource):
+    method_decorators = [jwt_required]
+
+    def get(self):
+        email = get_jwt_identity()
+        return {'msg': 'Account data for User {}'.format(email)}
+
+
 class UserLogoutAccess(Resource):
     def post(self):
-        return {'message': 'User logout'}
+        return {'msg': 'User logout'}
 
 
 class UserLogoutRefresh(Resource):
     def post(self):
-        return {'message': 'User logout'}
+        return {'msg': 'User logout'}
 
 
 class TokenRefresh(Resource):
     def post(self):
-        return {'message': 'Token refresh'}
+        return {'msg': 'Token refresh'}
 
 
 class AllUsers(Resource):
     def get(self):
-        return {'message': 'List of users'}
+        return {'msg': 'List of users'}
 
     def delete(self):
-        return {'message': 'Delete all users'}
+        return {'msg': 'Delete all users'}
 
 
 class SecretResource(Resource):
@@ -65,5 +73,6 @@ class SecretResource(Resource):
 
 resources_dict = {
     '/api/registration': UserRegistration,
-    '/api/login': UserLogin
+    '/api/login': UserLogin,
+    '/api/account': Account
 }

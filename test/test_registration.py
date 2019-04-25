@@ -19,7 +19,7 @@ def test_registration(sess_client: FlaskClient, func_empty_db: SQLAlchemy):
     response_json = json.loads(response.data)
     assert status_code == 200
     assert response_json[
-        'message'] == 'User ibeckermayer@gmail.com created successfully'
+        'msg'] == 'User ibeckermayer@gmail.com created successfully'
 
 
 def test_dual_registration(sess_client: FlaskClient,
@@ -38,7 +38,7 @@ def test_dual_registration(sess_client: FlaskClient,
         if i == 0:
             assert status_code == 200
             assert response_json[
-                'message'] == 'User ibeckermayer@gmail.com created successfully'
+                'msg'] == 'User ibeckermayer@gmail.com created successfully'
         else:
             assert status_code == 409
-            assert response_json['message'] == 'Email address already in use'
+            assert response_json['msg'] == 'Email address already in use'

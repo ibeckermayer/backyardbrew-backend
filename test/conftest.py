@@ -47,7 +47,3 @@ def mod_registered_user_db(sess_client: FlaskClient) -> SQLAlchemy:
     yield db
     db.session.remove()
     db.drop_all()
-
-
-# @pytest.fixture(scope='function')
-# def func_f

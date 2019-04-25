@@ -34,6 +34,16 @@ def JwtAccessImmediateExpireConfig(parent: Config):
     return JwtAccessImmediateExpireConfig()
 
 
+def JwtRefreshImmediateExpireConfig(parent: Config):
+    '''similar principle to JwtAccessImmediateExpireConfig, see it's docstring'''
+
+    class JwtRefreshImmediateExpireConfig(parent):
+        JWT_REFRESH_TOKEN_EXPIRES = relativedelta.relativedelta(
+            microseconds=1)  # refresh token expires in 1 microsecond (minimum)
+
+    return JwtRefreshImmediateExpireConfig()
+
+
 class StagingConfig(Config):
     """Configurations for Staging."""
     DEBUG = True
@@ -57,5 +67,9 @@ app_config = {
     'jwt_access_immediate_expire_dev':
     JwtAccessImmediateExpireConfig(DevelopmentConfig),
     'jwt_access_immediate_expire_test':
-    JwtAccessImmediateExpireConfig(TestingConfig)
+    JwtAccessImmediateExpireConfig(TestingConfig),
+    'jwt_refresh_immediate_expire_dev':
+    JwtRefreshImmediateExpireConfig(DevelopmentConfig),
+    'jwt_refresh_immediate_expire_test':
+    JwtRefreshImmediateExpireConfig(TestingConfig)
 }

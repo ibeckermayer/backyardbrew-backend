@@ -6,13 +6,13 @@ import json
 ENDPOINT = '/api/login'
 
 
-def test_login_success(session_client: FlaskClient,
-                       module_registered_user_db: SQLAlchemy):
+def test_login_success(sess_client: FlaskClient,
+                       mod_registered_user_db: SQLAlchemy):
     test_data = dict(email='ibeckermayer@gmail.com', password='test_password')
 
-    response = session_client.post(ENDPOINT,
-                                   data=json.dumps(test_data),
-                                   content_type='application/json')
+    response = sess_client.post(ENDPOINT,
+                                data=json.dumps(test_data),
+                                content_type='application/json')
     status_code = response.status_code
     response_json = json.loads(response.data)
 
@@ -22,13 +22,13 @@ def test_login_success(session_client: FlaskClient,
     assert response_json.get('access_token') != None
 
 
-def test_login_user_dne(session_client: FlaskClient,
-                        module_registered_user_db: SQLAlchemy):
+def test_login_user_dne(sess_client: FlaskClient,
+                        mod_registered_user_db: SQLAlchemy):
     test_data = dict(email='dne@gmail.com', password='test_password')
 
-    response = session_client.post(ENDPOINT,
-                                   data=json.dumps(test_data),
-                                   content_type='application/json')
+    response = sess_client.post(ENDPOINT,
+                                data=json.dumps(test_data),
+                                content_type='application/json')
     status_code = response.status_code
     response_json = json.loads(response.data)
 
@@ -36,13 +36,13 @@ def test_login_user_dne(session_client: FlaskClient,
     assert response_json['message'] == 'User dne@gmail.com doesn\'t exist'
 
 
-def test_login_wrong_pwd(session_client: FlaskClient,
-                         module_registered_user_db: SQLAlchemy):
+def test_login_wrong_pwd(sess_client: FlaskClient,
+                         mod_registered_user_db: SQLAlchemy):
     test_data = dict(email='ibeckermayer@gmail.com', password='wrong_password')
 
-    response = session_client.post(ENDPOINT,
-                                   data=json.dumps(test_data),
-                                   content_type='application/json')
+    response = sess_client.post(ENDPOINT,
+                                data=json.dumps(test_data),
+                                content_type='application/json')
     status_code = response.status_code
     response_json = json.loads(response.data)
     assert status_code == 401

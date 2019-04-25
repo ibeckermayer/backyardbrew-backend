@@ -6,13 +6,13 @@ import json
 ENDPOINT = '/api/login'
 
 
-def test_login_success(sess_client: FlaskClient,
-                       mod_registered_user_db: SQLAlchemy):
+def test_login_success(testing_client: FlaskClient,
+                       testing_registered_user_db: SQLAlchemy):
     test_data = dict(email='ibeckermayer@gmail.com', password='test_password')
 
-    response = sess_client.post(ENDPOINT,
-                                data=json.dumps(test_data),
-                                content_type='application/json')
+    response = testing_client.post(ENDPOINT,
+                                   data=json.dumps(test_data),
+                                   content_type='application/json')
     status_code = response.status_code
     response_json = json.loads(response.data)
 
@@ -23,13 +23,13 @@ def test_login_success(sess_client: FlaskClient,
     assert response_json.get('refresh_token') != None
 
 
-def test_login_user_dne(sess_client: FlaskClient,
-                        mod_registered_user_db: SQLAlchemy):
+def test_login_user_dne(testing_client: FlaskClient,
+                        testing_registered_user_db: SQLAlchemy):
     test_data = dict(email='dne@gmail.com', password='test_password')
 
-    response = sess_client.post(ENDPOINT,
-                                data=json.dumps(test_data),
-                                content_type='application/json')
+    response = testing_client.post(ENDPOINT,
+                                   data=json.dumps(test_data),
+                                   content_type='application/json')
     status_code = response.status_code
     response_json = json.loads(response.data)
 
@@ -39,13 +39,13 @@ def test_login_user_dne(sess_client: FlaskClient,
     assert response_json.get('refresh_token') == None
 
 
-def test_login_wrong_pwd(sess_client: FlaskClient,
-                         mod_registered_user_db: SQLAlchemy):
+def test_login_wrong_pwd(testing_client: FlaskClient,
+                         testing_registered_user_db: SQLAlchemy):
     test_data = dict(email='ibeckermayer@gmail.com', password='wrong_password')
 
-    response = sess_client.post(ENDPOINT,
-                                data=json.dumps(test_data),
-                                content_type='application/json')
+    response = testing_client.post(ENDPOINT,
+                                   data=json.dumps(test_data),
+                                   content_type='application/json')
     status_code = response.status_code
     response_json = json.loads(response.data)
     assert status_code == 401

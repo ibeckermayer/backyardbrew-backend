@@ -22,28 +22,40 @@ def create_app(config_name: str) -> Flask:
     app = Flask(__name__)
     app.config.from_object(app_config[config_name])
 
-    # register error handlers
-    # TODO: can be optimized with an error dict, similar to resources_dict below
-    app.register_error_handler(errors.EmailAlreadyInUse,
-                               errors.handle_email_already_in_use)
-    app.register_error_handler(errors.UserDNE, errors.handle_user_dne)
-    app.register_error_handler(errors.PasswordIncorrect,
-                               errors.handle_password_incorrect)
+    with app.app_context():
+        # register error handlers
+        # TODO: can be optimized with an error dict, similar to resources_dict below
+        app.register_error_handler(errors.EmailAlreadyInUse,
+                                   errors.handle_email_already_in_use)
+        app.register_error_handler(errors.UserDNE, errors.handle_user_dne)
+        app.register_error_handler(errors.PasswordIncorrect,
+                                   errors.handle_password_incorrect)
 
-    # register db
-    db.init_app(app)
+        # register db
+        db.init_app(app)
 
-    # register migration
-    migrate.init_app(app, db)
+        # register migration
+        migrate.init_app(app, db)
 
-    # register JWTManager
-    jwt.init_app(app)
+        # register JWTManager
+        jwt.init_app(app)
 
-    # register api resources
-    for path, resourceObj in resources.resources_dict.items():
-        api.add_resource(resourceObj, path)
+        # FlaskRestful does not integrate nicely with Flask app_context functionality.
+        # Since its useful for testing purposes to be able to create multiple apps with different configurations
+        # (for example, test jwt timing out requires a config with shorter jwt expiration times),
+        # we are using a static variable to check whether the resources have been added to the API in this process.
+        # This stops attempting to register the resources twice with the API object, which causes an error.
+        if not (create_app.resources_added):
+            # register api resources
+            for path, resourceObj in resources.resources_dict.items():
+                api.add_resource(resourceObj, path)
+            create_app.resources_added = True
 
-    # initialize api
-    api.init_app(app)
+        # initialize api
+        api.init_app(app)
 
     return app
+
+
+# initialize creat_app.resources_added static variable
+create_app.resources_added = False

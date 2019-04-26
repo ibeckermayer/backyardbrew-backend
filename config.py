@@ -26,8 +26,13 @@ class TestingConfig(Config):
     DEBUG = True
 
 
-def JwtAccessImmediateExpireConfig(parent: Config):
-    '''pass which configuration you wish to inherit in the parent parameter. This allows devs to choose whether to play with immediate jwt access token expiration on either the development server/database with DevelopmentConfig, or use it in testing with the TestingConfig'''
+def JwtAccessImmediateExpireConfig(parent: Config) -> Config:
+    '''
+    pass which configuration you wish to inherit in the parent parameter.
+    This allows devs to choose whether to play with immediate jwt access token
+    expiration on either the development server/database with DevelopmentConfig,
+    or use it in testing with the TestingConfig
+    '''
 
     class JwtAccessImmediateExpireConfig(parent):
         JWT_ACCESS_TOKEN_EXPIRES = relativedelta.relativedelta(
@@ -36,10 +41,16 @@ def JwtAccessImmediateExpireConfig(parent: Config):
     return JwtAccessImmediateExpireConfig()
 
 
-def JwtRefreshImmediateExpireConfig(parent: Config):
-    '''similar principle to JwtAccessImmediateExpireConfig, see it's docstring'''
+def JwtRefreshImmediateExpireConfig(parent: Config) -> Config:
+    '''
+    similar principle to JwtAccessImmediateExpireConfig, see it's docstring
+    NOTE: should always inherit JwtAccessImmediateExpireConfig, since in the
+    real world if refresh is expired, access will always also be expired
+    '''
 
-    class JwtRefreshImmediateExpireConfig(parent):
+    pconf = JwtAccessImmediateExpireConfig(parent)
+
+    class JwtRefreshImmediateExpireConfig(type(pconf)):
         JWT_REFRESH_TOKEN_EXPIRES = relativedelta.relativedelta(
             microseconds=1)  # refresh token expires in 1 microsecond (minimum)
 

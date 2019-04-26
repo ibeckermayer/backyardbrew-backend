@@ -28,3 +28,13 @@ class User(db.Model):
 
     def check_password(self, plaintext_password: str):
         return check_password_hash(self.password_hash, plaintext_password)
+
+
+class TokenBlacklist(db.Model):
+    __tablename__ = 'token_black_list'
+
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String(36), nullable=False)
+    token_type = db.Column(db.String(10), nullable=False)
+    revoked = db.Column(db.Boolean, nullable=False)
+    expires = db.Column(db.DateTime, nullable=False)

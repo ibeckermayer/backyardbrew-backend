@@ -59,3 +59,10 @@ class PasswordIncorrect(Exception):
 
 def handle_password_incorrect(error: Exception) -> dict:
     return error.to_response()
+
+
+class TokenNotFound(Exception):
+    """
+    Indicates that a token could not be found in the database
+    """
+    pass

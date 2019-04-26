@@ -43,11 +43,12 @@ def test_refresh_valid(testing_client: FlaskClient,
         test_data['email'])
 
 
-def test_refresh_expired(testing_refresh_exp_client: FlaskClient,
-                         testing_refresh_exp_registered_user_db: SQLAlchemy):
+def test_jwt_refresh_expired(
+        testing_jwt_refresh_exp_client: FlaskClient,
+        testing_jwt_refresh_exp_registered_user_db: SQLAlchemy):
     # login
     test_data = dict(email='ibeckermayer@gmail.com', password='test_password')
-    login_response = testing_refresh_exp_client.post(
+    login_response = testing_jwt_refresh_exp_client.post(
         '/api/login',
         data=json.dumps(test_data),
         content_type='application/json')
@@ -59,7 +60,7 @@ def test_refresh_expired(testing_refresh_exp_client: FlaskClient,
     sleep(1.1)  # sleep for 1.1 second to allow token to expire
 
     # ask for new access token from refresh endpoint
-    response = testing_refresh_exp_client.post(ENDPOINT, headers=header)
+    response = testing_jwt_refresh_exp_client.post(ENDPOINT, headers=header)
 
     # should fail
     response_json = json.loads(response.data)

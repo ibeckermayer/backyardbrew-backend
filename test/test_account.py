@@ -43,10 +43,11 @@ def test_jwt_access_valid(testing_client: FlaskClient,
         test_data['email'])
 
 
-def test_jwt_access_expired(testing_jwt_exp_client: FlaskClient,
-                            testing_jwt_exp_registered_user_db: SQLAlchemy):
+def test_jwt_access_expired(
+        testing_jwt_access_exp_client: FlaskClient,
+        testing_jwt_access_exp_registered_user_db: SQLAlchemy):
     test_data = dict(email='ibeckermayer@gmail.com', password='test_password')
-    login_response = testing_jwt_exp_client.post(
+    login_response = testing_jwt_access_exp_client.post(
         'api/login',
         data=json.dumps(test_data),
         content_type='application/json')
@@ -60,7 +61,7 @@ def test_jwt_access_expired(testing_jwt_exp_client: FlaskClient,
     header = {'Authorization': 'Bearer ' + access_token}
 
     # ping account endpoint with access token in header
-    response = testing_jwt_exp_client.get(ENDPOINT, headers=header)
+    response = testing_jwt_access_exp_client.get(ENDPOINT, headers=header)
 
     status_code = response.status_code
     response_json = json.loads(response.data)

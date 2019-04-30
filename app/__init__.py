@@ -4,11 +4,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 
 db = SQLAlchemy()
 migrate = Migrate()
 api = Api()
 jwt = JWTManager()
+cors = CORS()
 
 
 def create_app(config_name: str) -> Flask:
@@ -36,6 +38,9 @@ def create_app(config_name: str) -> Flask:
 
         # register migration
         migrate.init_app(app, db)
+
+        # register cors
+        cors.init_app(app, resources={r"*": {"origins": "*"}})
 
         # register JWTManager
         jwt.init_app(app)

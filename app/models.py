@@ -29,6 +29,13 @@ class User(db.Model):
     def check_password(self, plaintext_password: str):
         return check_password_hash(self.password_hash, plaintext_password)
 
+    def to_json(self) -> dict:
+        return {
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "email": self.email
+        }
+
 
 class TokenBlacklist(db.Model):
     __tablename__ = 'token_black_list'

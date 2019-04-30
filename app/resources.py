@@ -23,12 +23,12 @@ class UserRegistration(Resource):
 
 class UserLogin(Resource):
     def post(self):
-        user_json = request.get_json()
-        email = user_json['email']
+        email_and_pwd_json = request.get_json()
+        email = email_and_pwd_json['email']
         user = User.query.filter_by(email=email).first()
         if not user:
             raise UserDNE(email)
-        if user.check_password(user_json['password']):
+        if user.check_password(email_and_pwd_json['password']):
             # create jwt
             access_token = create_access_token(identity=user.email)
             refresh_token = create_refresh_token(identity=user.email)
@@ -39,6 +39,7 @@ class UserLogin(Resource):
 
             return {
                 'msg': 'User {} logged in successfully'.format(user.email),
+                'user': user.to_json(),
                 'access_token': access_token,
                 'refresh_token': refresh_token
             }

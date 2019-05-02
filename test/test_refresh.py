@@ -43,9 +43,8 @@ def test_refresh_valid(testing_client: FlaskClient,
         test_data['email'])
 
 
-def test_jwt_refresh_expired(
-        testing_jwt_refresh_exp_client: FlaskClient,
-        testing_jwt_refresh_exp_registered_user_db: SQLAlchemy):
+def test_jwt_refresh_expired(testing_jwt_refresh_exp_client: FlaskClient,
+                             testing_registered_user_db: SQLAlchemy):
     # login
     test_data = dict(email='ibeckermayer@gmail.com', password='test_password')
     login_response = testing_jwt_refresh_exp_client.post(

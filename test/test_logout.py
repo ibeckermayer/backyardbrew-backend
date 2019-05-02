@@ -54,9 +54,8 @@ def test_logout_both_valid(testing_client: FlaskClient,
     assert refresh_response_json['msg'] == 'Token has been revoked'
 
 
-def test_logout_access_expired(
-        testing_jwt_access_exp_client: FlaskClient,
-        testing_jwt_access_exp_registered_user_db: SQLAlchemy):
+def test_logout_access_expired(testing_jwt_access_exp_client: FlaskClient,
+                               testing_registered_user_db: SQLAlchemy):
     '''
     test logging out with access token expired but refresh token valid
     '''
@@ -108,9 +107,8 @@ def test_logout_access_expired(
     assert refresh_response_json['msg'] == 'Token has been revoked'
 
 
-def test_logout_refresh_expired(
-        testing_jwt_refresh_exp_client: FlaskClient,
-        testing_jwt_refresh_exp_registered_user_db: SQLAlchemy):
+def test_logout_refresh_expired(testing_jwt_refresh_exp_client: FlaskClient,
+                                testing_registered_user_db: SQLAlchemy):
     '''
     test logging out with access token expired but refresh token valid
     '''

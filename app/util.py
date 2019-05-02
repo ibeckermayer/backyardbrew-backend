@@ -65,10 +65,7 @@ def revoke_token(raw_token: dict):
 def prune_database():
     '''
     Delete tokens that have expired from the database.
-
-    How (and if) you call this is entirely up you. You could expose it to an
-    endpoint that only administrators could call, you could run it as a cron,
-    set it up with flask cli, etc.
+    TODO: configure so this can be run, either manually via admin user or chron job
     '''
     now = datetime.now()
     expired = TokenBlacklist.query.filter(TokenBlacklist.expires < now).all()

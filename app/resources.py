@@ -1,6 +1,6 @@
 from flask_restful import Resource, request
 from sqlalchemy.exc import IntegrityError
-from app.models import User
+from app.models import User, Feedback
 from app import db, jwt
 from app.errors import EmailAlreadyInUse, UserDNE, PasswordIncorrect
 from flask_jwt_extended import (create_access_token, create_refresh_token,
@@ -78,6 +78,17 @@ class Logout2(Resource):
     def delete(self):
         revoke_token(get_raw_jwt())
         return {'msg': 'JWT refresh token revoked'}
+
+
+class Feedback(Resource):
+    def post(self):
+        feedback_json = request.get_json()
+        feedback = Feedback(name=feedback_json['name'],
+                            email=feedback_json['email'],
+                            text=feedback_json['text'])
+        db.session.add(feedback)
+        db.session.commit()
+        return {'msg': 'Feedback submitted'}
 
 
 # Define our callback function to check if a token has been revoked or not

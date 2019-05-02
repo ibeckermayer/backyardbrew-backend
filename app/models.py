@@ -21,7 +21,9 @@ class User(db.Model):
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
-        self.password_hash = generate_password_hash(plaintext_password)
+        self.password_hash = generate_password_hash(
+            plaintext_password
+        )  # NOTE: somebody alert the geniuses at facebook that this is how to save passwords
         self.registered_on = datetime.now()
         self.role = ROLES['customer']
 
@@ -44,12 +46,13 @@ class Feedback(db.Model):
     __tablename__ = 'feedback'
 
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=False)
     email = db.Column(db.String(120), index=True)
     text = db.Column(db.Text, nullable=False)
     resolved = db.Column(db.Boolean, nullable=False)
     rcvd_on = db.Column(db.DateTime, nullable=False)
 
-    def __init__(self, email: str, text: str):
+    def __init__(self, name: str, email: str, text: str):
         self.email = email
         self.text = text
         self.resolved = False  # new Feedback objects are always unresolved
@@ -57,6 +60,8 @@ class Feedback(db.Model):
 
     def to_json(self) -> dict:
         return {
+            'id': self.id,
+            'name': self.name,
             'email': self.email,
             'text': self.text,
             'resolved': self.resolved,

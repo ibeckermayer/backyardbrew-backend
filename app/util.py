@@ -28,8 +28,7 @@ def add_token_to_database(encoded_token: str):
                               token_type=token_type,
                               expires=expires,
                               revoked=revoked)
-    db.session.add(db_token)
-    db.session.commit()
+    db_token.save_new()
 
 
 def is_token_revoked(decoded_token: dict):
@@ -55,8 +54,7 @@ def revoke_token(raw_token: dict):
     jti = raw_token['jti']
     try:
         token = TokenBlacklist.query.filter_by(jti=jti).one()
-        token.revoked = True
-        db.session.commit()
+        token.revoke()
     except NoResultFound:
         raise TokenNotFound(
             "Could not find the token {}".format(encoded_token))

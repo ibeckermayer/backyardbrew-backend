@@ -12,12 +12,13 @@ from app.util import (add_token_to_database, is_token_revoked, revoke_token)
 class UserRegistrationEndpoint(Resource):
     def post(self):
         user_json = request.get_json()
-        if User.query.filter_by(email=user_json['email']).first() is not None:
+        if User.get(user_json['email']) is not None:
             raise EmailAlreadyInUse()
-        user = User(user_json['first_name'], user_json['last_name'],
-                    user_json['email'], user_json['password'])
-        db.session.add(user)
-        db.session.commit()
+        user = User(first_name=user_json['first_name'],
+                    last_name=user_json['last_name'],
+                    email=user_json['email'],
+                    plaintext_password=user_json['password'])
+        user.save_new()
         return {'msg': 'User {} created successfully'.format(user.email)}
 
 
@@ -86,8 +87,7 @@ class FeedbackEndpoint(Resource):
         feedback = Feedback(name=feedback_json['name'],
                             email=feedback_json['email'],
                             text=feedback_json['text'])
-        db.session.add(feedback)
-        db.session.commit()
+        feedback.save_new()
         return {'msg': 'Feedback submitted'}
 
 

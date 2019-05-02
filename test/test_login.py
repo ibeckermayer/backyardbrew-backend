@@ -2,6 +2,7 @@ from flask.testing import FlaskClient
 from flask_sqlalchemy import SQLAlchemy
 import requests
 import json
+from app.models import ROLES
 
 ENDPOINT = '/api/login'
 
@@ -19,9 +20,10 @@ def test_login_success(testing_client: FlaskClient,
     assert status_code == 200
     assert response_json[
         'msg'] == 'User ibeckermayer@gmail.com logged in successfully'
-    assert response_json['user']['email'] == "ibeckermayer@gmail.com"
-    assert response_json['user']['first_name'] == "isaiah"
-    assert response_json['user']['last_name'] == "becker-mayer"
+    assert response_json['user']['email'] == 'ibeckermayer@gmail.com'
+    assert response_json['user']['first_name'] == 'isaiah'
+    assert response_json['user']['last_name'] == 'becker-mayer'
+    assert response_json['user']['role'] == ROLES['customer']
     assert response_json.get('access_token') != None
     assert response_json.get('refresh_token') != None
 

@@ -25,7 +25,7 @@ def testing_client() -> FlaskClient:
 def testing_empty_db() -> SQLAlchemy:
     '''Create all tables before each test and then remove all tables after each test'''
     # db.create_all()
-    reset_db(db)
+    reset_db()
     yield db
     db.session.remove()
     db.drop_all()

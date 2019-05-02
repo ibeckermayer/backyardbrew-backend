@@ -9,7 +9,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
 from app.util import (add_token_to_database, is_token_revoked, revoke_token)
 
 
-class UserRegistration(Resource):
+class UserRegistrationEndpoint(Resource):
     def post(self):
         user_json = request.get_json()
         if User.query.filter_by(email=user_json['email']).first() is not None:
@@ -21,7 +21,7 @@ class UserRegistration(Resource):
         return {'msg': 'User {} created successfully'.format(user.email)}
 
 
-class UserLogin(Resource):
+class UserLoginEndpoint(Resource):
     def post(self):
         email_and_pwd_json = request.get_json()
         email = email_and_pwd_json['email']
@@ -47,14 +47,14 @@ class UserLogin(Resource):
             raise PasswordIncorrect(user.email)
 
 
-class Account(Resource):
+class AccountEndpoint(Resource):
     @jwt_required
     def get(self):
         email = get_jwt_identity()
         return {'msg': 'Account data for User {}'.format(email)}
 
 
-class Refresh(Resource):
+class RefreshEndpoint(Resource):
     @jwt_refresh_token_required
     def post(self):
         email = get_jwt_identity()
@@ -66,21 +66,21 @@ class Refresh(Resource):
         }
 
 
-class Logout1(Resource):
+class Logout1Endpoint(Resource):
     @jwt_required
     def delete(self):
         revoke_token(get_raw_jwt())
         return {'msg': 'JWT access token revoked'}
 
 
-class Logout2(Resource):
+class Logout2Endpoint(Resource):
     @jwt_refresh_token_required
     def delete(self):
         revoke_token(get_raw_jwt())
         return {'msg': 'JWT refresh token revoked'}
 
 
-class Feedback(Resource):
+class FeedbackEndpoint(Resource):
     def post(self):
         feedback_json = request.get_json()
         feedback = Feedback(name=feedback_json['name'],
@@ -126,10 +126,11 @@ class SecretResource(Resource):
 
 
 resources_dict = {
-    '/api/registration': UserRegistration,
-    '/api/login': UserLogin,
-    '/api/account': Account,
-    '/api/refresh': Refresh,
-    '/api/logout1': Logout1,
-    '/api/logout2': Logout2
+    '/api/registration': UserRegistrationEndpoint,
+    '/api/login': UserLoginEndpoint,
+    '/api/account': AccountEndpoint,
+    '/api/refresh': RefreshEndpoint,
+    '/api/logout1': Logout1Endpoint,
+    '/api/logout2': Logout2Endpoint,
+    '/api/feedback': FeedbackEndpoint
 }

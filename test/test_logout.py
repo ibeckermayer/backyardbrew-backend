@@ -4,21 +4,32 @@ import requests
 import json
 from time import sleep
 from dateutil import relativedelta
+from backend import test_users, add_test_user
 
 LOGOUT1 = '/api/logout1'
 LOGOUT2 = '/api/logout2'
 
 
 def test_logout_both_valid(testing_client: FlaskClient,
-                           testing_registered_user_db: SQLAlchemy):
+                           testing_db: SQLAlchemy):
     '''
     test logging out with both access and refresh jwt valid
     '''
+    # add test_customer to the database
+    test_customer = test_users['test_customer']
+    add_test_user(test_customer)
+
     # login
-    test_data = dict(email='ibeckermayer@gmail.com', password='test_password')
-    login_response = testing_client.post('/api/login',
-                                         data=json.dumps(test_data),
-                                         content_type='application/json')
+    login_response = testing_client.post(
+        '/api/login',
+        data=json.dumps({
+            'email':
+            test_customer['email'],
+            'plaintext_password':
+            test_customer['plaintext_password']
+        }),
+        content_type='application/json')
+
     login_response_json = json.loads(login_response.data)
 
     # extract tokens
@@ -56,7 +67,7 @@ def test_logout_both_valid(testing_client: FlaskClient,
 
 
 def test_logout_access_expired(testing_client: FlaskClient,
-                               testing_registered_user_db: SQLAlchemy):
+                               testing_db: SQLAlchemy):
     '''
     test logging out with access token expired but refresh token valid
     '''
@@ -64,11 +75,22 @@ def test_logout_access_expired(testing_client: FlaskClient,
     testing_client.application.config[
         'JWT_ACCESS_TOKEN_EXPIRES'] = relativedelta.relativedelta(
             microseconds=1)  # access token expires in 1 microsecond (minimum)
+
+    # add test_customer to the database
+    test_customer = test_users['test_customer']
+    add_test_user(test_customer)
+
     # login
-    test_data = dict(email='ibeckermayer@gmail.com', password='test_password')
-    login_response = testing_client.post('/api/login',
-                                         data=json.dumps(test_data),
-                                         content_type='application/json')
+    login_response = testing_client.post(
+        '/api/login',
+        data=json.dumps({
+            'email':
+            test_customer['email'],
+            'plaintext_password':
+            test_customer['plaintext_password']
+        }),
+        content_type='application/json')
+
     login_response_json = json.loads(login_response.data)
     sleep(1.1)  # sleep for 1.1 second to allow access_token to expire
 
@@ -109,7 +131,7 @@ def test_logout_access_expired(testing_client: FlaskClient,
 
 
 def test_logout_refresh_expired(testing_client: FlaskClient,
-                                testing_registered_user_db: SQLAlchemy):
+                                testing_db: SQLAlchemy):
     '''
     test logging out with access token expired but refresh token valid
     '''
@@ -121,12 +143,23 @@ def test_logout_refresh_expired(testing_client: FlaskClient,
         'JWT_REFRESH_TOKEN_EXPIRES'] = relativedelta.relativedelta(
             microseconds=1)  # refresh token expires in 1 microsecond (minimum)
 
+    # add test_customer to the database
+    test_customer = test_users['test_customer']
+    add_test_user(test_customer)
+
     # login
-    test_data = dict(email='ibeckermayer@gmail.com', password='test_password')
-    login_response = testing_client.post('/api/login',
-                                         data=json.dumps(test_data),
-                                         content_type='application/json')
+    login_response = testing_client.post(
+        '/api/login',
+        data=json.dumps({
+            'email':
+            test_customer['email'],
+            'plaintext_password':
+            test_customer['plaintext_password']
+        }),
+        content_type='application/json')
+
     login_response_json = json.loads(login_response.data)
+
     sleep(1.1)  # sleep for 1.1 second to allow access_token to expire
 
     # extract tokens

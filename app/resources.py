@@ -17,7 +17,7 @@ class UserRegistrationEndpoint(Resource):
         user = User(first_name=user_json['first_name'],
                     last_name=user_json['last_name'],
                     email=user_json['email'],
-                    plaintext_password=user_json['password'])
+                    plaintext_password=user_json['plaintext_password'])
         user.save_new()
         return {'msg': 'User {} created successfully'.format(user.email)}
 
@@ -29,7 +29,7 @@ class UserLoginEndpoint(Resource):
         user = User.query.filter_by(email=email).first()
         if not user:
             raise UserDNE(email)
-        if user.check_password(email_and_pwd_json['password']):
+        if user.check_password(email_and_pwd_json['plaintext_password']):
             # create jwt
             access_token = create_access_token(identity=user.email)
             refresh_token = create_refresh_token(identity=user.email)

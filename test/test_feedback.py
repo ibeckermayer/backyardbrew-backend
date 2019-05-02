@@ -7,8 +7,7 @@ import lorem
 ENDPOINT = '/api/feedback'
 
 
-def test_submit_feedback(testing_client: FlaskClient,
-                         testing_empty_db: SQLAlchemy):
+def test_submit_feedback(testing_client: FlaskClient, testing_db: SQLAlchemy):
     '''
     test feedback is submitted successfully
     '''

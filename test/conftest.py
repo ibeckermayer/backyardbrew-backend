@@ -5,6 +5,7 @@ from flask import current_app
 from flask.testing import FlaskClient
 from flask_sqlalchemy import SQLAlchemy
 from app import create_app, db
+from backend import reset_db
 from app.models import User, ROLES
 import random
 import string
@@ -21,29 +22,10 @@ def testing_client() -> FlaskClient:
 
 
 @pytest.fixture
-def testing_jwt_access_exp_client() -> FlaskClient:
-    '''create app with immediate jwt access expiration config to test jwt expiration'''
-    app = create_app('jwt_access_immediate_expire_test')
-    ctx = app.app_context()
-    ctx.push()
-    yield app.test_client()
-    ctx.pop()
-
-
-@pytest.fixture
-def testing_jwt_refresh_exp_client() -> FlaskClient:
-    '''create app with immediate jwt access expiration config to test jwt expiration'''
-    app = create_app('jwt_refresh_immediate_expire_test')
-    ctx = app.app_context()
-    ctx.push()
-    yield app.test_client()
-    ctx.pop()
-
-
-@pytest.fixture
 def testing_empty_db() -> SQLAlchemy:
     '''Create all tables before each test and then remove all tables after each test'''
-    db.create_all()
+    # db.create_all()
+    reset_db(db)
     yield db
     db.session.remove()
     db.drop_all()

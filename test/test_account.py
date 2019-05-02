@@ -2,6 +2,7 @@ import json
 from flask.testing import FlaskClient
 from flask_sqlalchemy import SQLAlchemy
 from time import sleep
+from dateutil import relativedelta
 
 ENDPOINT = '/api/account'
 
@@ -43,13 +44,18 @@ def test_jwt_access_valid(testing_client: FlaskClient,
         test_data['email'])
 
 
-def test_jwt_access_expired(testing_jwt_access_exp_client: FlaskClient,
+def test_jwt_access_expired(testing_client: FlaskClient,
                             testing_registered_user_db: SQLAlchemy):
+
+    # set access_token to expire quickly
+    testing_client.application.config[
+        'JWT_ACCESS_TOKEN_EXPIRES'] = relativedelta.relativedelta(
+            microseconds=1)  # access token expires in 1 microsecond (minimum)
+
     test_data = dict(email='ibeckermayer@gmail.com', password='test_password')
-    login_response = testing_jwt_access_exp_client.post(
-        'api/login',
-        data=json.dumps(test_data),
-        content_type='application/json')
+    login_response = testing_client.post('api/login',
+                                         data=json.dumps(test_data),
+                                         content_type='application/json')
 
     sleep(1.1)  # sleep for 1.1 second to allow token to expire
 
@@ -60,7 +66,7 @@ def test_jwt_access_expired(testing_jwt_access_exp_client: FlaskClient,
     header = {'Authorization': 'Bearer ' + access_token}
 
     # ping account endpoint with access token in header
-    response = testing_jwt_access_exp_client.get(ENDPOINT, headers=header)
+    response = testing_client.get(ENDPOINT, headers=header)
 
     status_code = response.status_code
     response_json = json.loads(response.data)

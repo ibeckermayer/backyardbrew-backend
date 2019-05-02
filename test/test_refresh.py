@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 import requests
 import json
 from time import sleep
+from dateutil import relativedelta
 
 ENDPOINT = '/api/refresh'
 
@@ -43,14 +44,21 @@ def test_refresh_valid(testing_client: FlaskClient,
         test_data['email'])
 
 
-def test_jwt_refresh_expired(testing_jwt_refresh_exp_client: FlaskClient,
+def test_jwt_refresh_expired(testing_client: FlaskClient,
                              testing_registered_user_db: SQLAlchemy):
+    # set both access_token and refresh_token to expire quickly
+    testing_client.application.config[
+        'JWT_ACCESS_TOKEN_EXPIRES'] = relativedelta.relativedelta(
+            microseconds=1)  # access token expires in 1 microsecond (minimum)
+    testing_client.application.config[
+        'JWT_REFRESH_TOKEN_EXPIRES'] = relativedelta.relativedelta(
+            microseconds=1)  # refresh token expires in 1 microsecond (minimum)
+
     # login
     test_data = dict(email='ibeckermayer@gmail.com', password='test_password')
-    login_response = testing_jwt_refresh_exp_client.post(
-        '/api/login',
-        data=json.dumps(test_data),
-        content_type='application/json')
+    login_response = testing_client.post('/api/login',
+                                         data=json.dumps(test_data),
+                                         content_type='application/json')
     # get refresh token and create header
     login_response_json = json.loads(login_response.data)
     refresh_token = login_response_json['refresh_token']
@@ -59,7 +67,7 @@ def test_jwt_refresh_expired(testing_jwt_refresh_exp_client: FlaskClient,
     sleep(1.1)  # sleep for 1.1 second to allow token to expire
 
     # ask for new access token from refresh endpoint
-    response = testing_jwt_refresh_exp_client.post(ENDPOINT, headers=header)
+    response = testing_client.post(ENDPOINT, headers=header)
 
     # should fail
     response_json = json.loads(response.data)

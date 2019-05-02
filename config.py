@@ -26,37 +26,6 @@ class TestingConfig(Config):
     DEBUG = True
 
 
-def JwtAccessImmediateExpireConfig(parent: Config) -> Config:
-    '''
-    pass which configuration you wish to inherit in the parent parameter.
-    This allows devs to choose whether to play with immediate jwt access token
-    expiration on either the development server/database with DevelopmentConfig,
-    or use it in testing with the TestingConfig
-    '''
-
-    class JwtAccessImmediateExpireConfig(parent):
-        JWT_ACCESS_TOKEN_EXPIRES = relativedelta.relativedelta(
-            microseconds=1)  # access token expires in 1 microsecond (minimum)
-
-    return JwtAccessImmediateExpireConfig()
-
-
-def JwtRefreshImmediateExpireConfig(parent: Config) -> Config:
-    '''
-    similar principle to JwtAccessImmediateExpireConfig, see it's docstring
-    NOTE: should always inherit JwtAccessImmediateExpireConfig, since in the
-    real world if refresh is expired, access will always also be expired
-    '''
-
-    pconf = JwtAccessImmediateExpireConfig(parent)
-
-    class JwtRefreshImmediateExpireConfig(type(pconf)):
-        JWT_REFRESH_TOKEN_EXPIRES = relativedelta.relativedelta(
-            microseconds=1)  # refresh token expires in 1 microsecond (minimum)
-
-    return JwtRefreshImmediateExpireConfig()
-
-
 class StagingConfig(Config):
     """Configurations for Staging."""
     DEBUG = True
@@ -69,20 +38,8 @@ class ProductionConfig(Config):
 
 
 app_config = {
-    'development':
-    DevelopmentConfig,
-    'testing':
-    TestingConfig,
-    'staging':
-    StagingConfig,
-    'production':
-    ProductionConfig,
-    'jwt_access_immediate_expire_dev':
-    JwtAccessImmediateExpireConfig(DevelopmentConfig),
-    'jwt_access_immediate_expire_test':
-    JwtAccessImmediateExpireConfig(TestingConfig),
-    'jwt_refresh_immediate_expire_dev':
-    JwtRefreshImmediateExpireConfig(DevelopmentConfig),
-    'jwt_refresh_immediate_expire_test':
-    JwtRefreshImmediateExpireConfig(TestingConfig)
+    'development': DevelopmentConfig,
+    'testing': TestingConfig,
+    'staging': StagingConfig,
+    'production': ProductionConfig
 }

@@ -66,7 +66,7 @@ class User(db.Model):
 
 class Feedback(db.Model):
     __tablename__ = 'feedback'
-    rpp = 10  # results per page
+    rpp = 10  # results per page; NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=False)

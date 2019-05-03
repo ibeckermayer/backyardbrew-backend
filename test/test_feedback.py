@@ -6,7 +6,8 @@ import requests
 import json
 import lorem
 from backend import (test_feedback_unresolved, test_feedback_resolved,
-                     add_test_feedback, test_users, add_test_user)
+                     add_test_feedback, test_users, add_test_user,
+                     add_all_test_feedback)
 
 ENDPOINT = '/api/feedback'
 
@@ -319,3 +320,145 @@ def test_get_feedback_unresolved(testing_client: FlaskClient,
     assert response_json['feedbacks'][0]['email'] == test_fb_u['email']
     assert response_json['feedbacks'][0]['text'] == test_fb_u['text']
     assert response_json['feedbacks'][0]['resolved'] == False
+
+
+def test_get_feedback_resolved_pag(testing_client: FlaskClient,
+                                   testing_db: SQLAlchemy):
+    '''
+    Test more complex queries for resolved feedback that include pagination, with all 15 resolved and unresolved in the database
+    '''
+    # add all the test_feedback from backend.py to database
+    add_all_test_feedback()
+
+    # add admin user to db
+    test_admin = test_users['test_admin']
+    add_test_user(test_admin)
+
+    # login as admin
+    login_response = testing_client.post('/api/login',
+                                         data=json.dumps({
+                                             'email':
+                                             test_admin['email'],
+                                             'plaintext_password':
+                                             test_admin['plaintext_password']
+                                         }),
+                                         content_type='application/json')
+
+    login_response_json = json.loads(login_response.data)
+
+    # create access header
+    access_token = login_response_json['access_token']
+    access_header = {'Authorization': 'Bearer ' + access_token}
+
+    # check page 1
+    response = testing_client.get(
+        ENDPOINT,
+        data=json.dumps({
+            'resolved': True,
+            'page': 1,
+        }),
+        content_type='application/json',
+        headers=access_header,
+    )
+
+    response_json = json.loads(response.data)
+    feedbacks = response_json['feedbacks']
+    assert response.status_code == 200
+    assert response_json['total_pages'] == 2
+    assert len(
+        feedbacks
+    ) == 10  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable
+    for feedback in feedbacks:
+        assert feedback['resolved'] == True
+
+    # check page 2
+    response = testing_client.get(
+        ENDPOINT,
+        data=json.dumps({
+            'resolved': True,
+            'page': 2,
+        }),
+        content_type='application/json',
+        headers=access_header,
+    )
+
+    response_json = json.loads(response.data)
+    feedbacks = response_json['feedbacks']
+    assert response.status_code == 200
+    assert response_json['total_pages'] == 2
+    assert len(
+        feedbacks
+    ) == 5  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable
+    for feedback in feedbacks:
+        assert feedback['resolved'] == True
+
+
+def test_get_feedback_unresolved_pag(testing_client: FlaskClient,
+                                     testing_db: SQLAlchemy):
+    '''
+    Test more complex queries for unresolved feedback that include pagination, with all 15 resolved and unresolved in the database
+    '''
+    # add all the test_feedback from backend.py to database
+    add_all_test_feedback()
+
+    # add admin user to db
+    test_admin = test_users['test_admin']
+    add_test_user(test_admin)
+
+    # login as admin
+    login_response = testing_client.post('/api/login',
+                                         data=json.dumps({
+                                             'email':
+                                             test_admin['email'],
+                                             'plaintext_password':
+                                             test_admin['plaintext_password']
+                                         }),
+                                         content_type='application/json')
+
+    login_response_json = json.loads(login_response.data)
+
+    # create access header
+    access_token = login_response_json['access_token']
+    access_header = {'Authorization': 'Bearer ' + access_token}
+
+    # check page 1
+    response = testing_client.get(
+        ENDPOINT,
+        data=json.dumps({
+            'resolved': False,
+            'page': 1,
+        }),
+        content_type='application/json',
+        headers=access_header,
+    )
+
+    response_json = json.loads(response.data)
+    feedbacks = response_json['feedbacks']
+    assert response.status_code == 200
+    assert response_json['total_pages'] == 2
+    assert len(
+        feedbacks
+    ) == 10  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable
+    for feedback in feedbacks:
+        assert feedback['resolved'] == False
+
+    # check page 2
+    response = testing_client.get(
+        ENDPOINT,
+        data=json.dumps({
+            'resolved': False,
+            'page': 2,
+        }),
+        content_type='application/json',
+        headers=access_header,
+    )
+
+    response_json = json.loads(response.data)
+    feedbacks = response_json['feedbacks']
+    assert response.status_code == 200
+    assert response_json['total_pages'] == 2
+    assert len(
+        feedbacks
+    ) == 5  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable
+    for feedback in feedbacks:
+        assert feedback['resolved'] == False

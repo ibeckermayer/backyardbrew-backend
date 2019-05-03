@@ -116,6 +116,17 @@ def add_test_feedback(test_feedback: dict):
     feedback.save_new()
 
 
+def add_all_test_feedback():
+    '''
+    add all 15 resolved and unresolved test feedback examples to the database
+    '''
+    for fb in test_feedback_resolved:
+        add_test_feedback(fb)
+
+    for fb in test_feedback_unresolved:
+        add_test_feedback(fb)
+
+
 @app.shell_context_processor
 def make_shell_context():
     return {
@@ -131,6 +142,7 @@ def make_shell_context():
         'test_feedback_resolved': test_feedback_resolved,
         'test_feedback_unresolved': test_feedback_unresolved,
         'add_test_feedback': add_test_feedback,
+        'add_all_test_feedback': add_all_test_feedback,
         'Feedback': Feedback,
         'User': User
     }

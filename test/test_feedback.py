@@ -211,6 +211,7 @@ def test_post_feedback_no_feedback(testing_client: FlaskClient,
     response_json = json.loads(response.data)
     assert response.status_code == 200
     assert len(response_json['feedbacks']) == 0
+    assert response_json['total_pages'] == 0
 
     response = testing_client.post(
         ENDPOINT,
@@ -225,6 +226,7 @@ def test_post_feedback_no_feedback(testing_client: FlaskClient,
     response_json = json.loads(response.data)
     assert response.status_code == 200
     assert len(response_json['feedbacks']) == 0
+    assert response_json['total_pages'] == 0
 
 
 def test_post_feedback_resolved(testing_client: FlaskClient,
@@ -270,6 +272,7 @@ def test_post_feedback_resolved(testing_client: FlaskClient,
 
     response_json = json.loads(response.data)
     assert response.status_code == 200
+    assert response_json['total_pages'] == 1
     assert len(response_json['feedbacks']) == 1
     assert response_json['feedbacks'][0]['id'] == 1
     assert response_json['feedbacks'][0]['name'] == test_fb_r['name']
@@ -321,6 +324,7 @@ def test_post_feedback_unresolved(testing_client: FlaskClient,
 
     response_json = json.loads(response.data)
     assert response.status_code == 200
+    assert response_json['total_pages'] == 1
     assert len(response_json['feedbacks']) == 1
     assert response_json['feedbacks'][0]['id'] == 2
     assert response_json['feedbacks'][0]['name'] == test_fb_u['name']
@@ -370,6 +374,7 @@ def test_post_feedback_resolved_pag(testing_client: FlaskClient,
 
     response_json = json.loads(response.data)
     feedbacks = response_json['feedbacks']
+    assert response_json['total_pages'] == 2
     assert response.status_code == 200
     assert len(
         feedbacks
@@ -391,6 +396,7 @@ def test_post_feedback_resolved_pag(testing_client: FlaskClient,
     response_json = json.loads(response.data)
     feedbacks = response_json['feedbacks']
     assert response.status_code == 200
+    assert response_json['total_pages'] == 2
     assert len(
         feedbacks
     ) == 5  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable
@@ -439,6 +445,7 @@ def test_post_feedback_unresolved_pag(testing_client: FlaskClient,
 
     response_json = json.loads(response.data)
     feedbacks = response_json['feedbacks']
+    assert response_json['total_pages'] == 2
     assert response.status_code == 200
     assert len(
         feedbacks
@@ -459,6 +466,7 @@ def test_post_feedback_unresolved_pag(testing_client: FlaskClient,
 
     response_json = json.loads(response.data)
     feedbacks = response_json['feedbacks']
+    assert response_json['total_pages'] == 2
     assert response.status_code == 200
     assert len(
         feedbacks
@@ -623,6 +631,7 @@ def test_patch_feedback_res_to_un(testing_client: FlaskClient,
     response_json = json.loads(response.data)
     feedbacks = response_json['feedbacks']
     assert response.status_code == 200
+    assert response_json['total_pages'] == 2
     assert len(
         feedbacks
     ) == 5  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable
@@ -640,6 +649,8 @@ def test_patch_feedback_res_to_un(testing_client: FlaskClient,
                                     content_type='application/json',
                                     headers=access_header)
 
+    assert (json.loads(response.data))['total_pages'] == 2
+
     # check page 2 again, this time there should only be 4 feedbacks
     response = testing_client.post(
         ENDPOINT,
@@ -653,6 +664,7 @@ def test_patch_feedback_res_to_un(testing_client: FlaskClient,
     response_json = json.loads(response.data)
     feedbacks = response_json['feedbacks']
     assert response.status_code == 200
+    assert response_json['total_pages'] == 2
     assert len(
         feedbacks
     ) == 4  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable
@@ -698,6 +710,7 @@ def test_patch_feedback_un_to_res(testing_client: FlaskClient,
     response_json = json.loads(response.data)
     feedbacks = response_json['feedbacks']
     assert response.status_code == 200
+    assert response_json['total_pages'] == 2
     assert len(
         feedbacks
     ) == 5  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable
@@ -715,6 +728,8 @@ def test_patch_feedback_un_to_res(testing_client: FlaskClient,
                                     content_type='application/json',
                                     headers=access_header)
 
+    assert (json.loads(response.data))['total_pages'] == 2
+
     # check page 2 again, this time there should only be 4 feedbacks
     response = testing_client.post(
         ENDPOINT,
@@ -728,6 +743,7 @@ def test_patch_feedback_un_to_res(testing_client: FlaskClient,
     response_json = json.loads(response.data)
     feedbacks = response_json['feedbacks']
     assert response.status_code == 200
+    assert response_json['total_pages'] == 2
     assert len(
         feedbacks
     ) == 4  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable

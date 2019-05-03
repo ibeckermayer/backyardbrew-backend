@@ -120,6 +120,17 @@ class Feedback(db.Model):
         fb.resolved = resolved
         db.session.commit()
 
+    @classmethod
+    def count_pages(cls, resolved: bool):
+        '''
+        counts total number of pages in database for resolved or unresolved
+        '''
+        count = Feedback.query.filter_by(resolved=resolved).count()
+        pages = int(count / cls.rpp)
+        if (count % cls.rpp != 0):
+            pages += 1
+        return pages
+
 
 class TokenBlacklist(db.Model):
     __tablename__ = 'token_black_list'

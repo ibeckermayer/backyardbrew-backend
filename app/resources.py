@@ -107,7 +107,9 @@ class FeedbackEndpoint(Resource):
                 'feedbacks': [
                     fb.to_json()
                     for fb in Feedback.get(resolved=resolved, page=page)
-                ]
+                ],
+                'total_pages':
+                Feedback.count_pages(resolved)
             }
         else:
             raise UserNotAdmin(email)
@@ -130,7 +132,11 @@ class FeedbackEndpoint(Resource):
             return {
                 'msg':
                 'Feedback object {} resolved attribute set to {}'.format(
-                    id, resolved)
+                    id, resolved),
+                'total_pages':
+                Feedback.count_pages(
+                    not (resolved)
+                )  # tell the frontend how many pages remain in !(resolved) so it can remain in sync w/ the database
             }
         else:
             raise UserNotAdmin(email)

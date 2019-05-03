@@ -10,18 +10,18 @@ ENDPOINT = '/api/registration'
 def test_registration(testing_client: FlaskClient, testing_db: SQLAlchemy):
     test_customer = test_users['test_customer']
 
-    response = testing_client.post(ENDPOINT,
-                                   data=json.dumps({
-                                       'first_name':
-                                       test_customer['first_name'],
-                                       'last_name':
-                                       test_customer['last_name'],
-                                       'email':
-                                       test_customer['email'],
-                                       'plaintext_password':
-                                       test_customer['plaintext_password']
-                                   }),
-                                   content_type='application/json')
+    response = testing_client.put(ENDPOINT,
+                                  data=json.dumps({
+                                      'first_name':
+                                      test_customer['first_name'],
+                                      'last_name':
+                                      test_customer['last_name'],
+                                      'email':
+                                      test_customer['email'],
+                                      'plaintext_password':
+                                      test_customer['plaintext_password']
+                                  }),
+                                  content_type='application/json')
     status_code = response.status_code
     response_json = json.loads(response.data)
     assert status_code == 200
@@ -34,18 +34,18 @@ def test_dual_registration(testing_client: FlaskClient,
     test_customer = test_users['test_customer']
 
     for i in range(2):
-        response = testing_client.post(ENDPOINT,
-                                       data=json.dumps({
-                                           'first_name':
-                                           test_customer['first_name'],
-                                           'last_name':
-                                           test_customer['last_name'],
-                                           'email':
-                                           test_customer['email'],
-                                           'plaintext_password':
-                                           test_customer['plaintext_password']
-                                       }),
-                                       content_type='application/json')
+        response = testing_client.put(ENDPOINT,
+                                      data=json.dumps({
+                                          'first_name':
+                                          test_customer['first_name'],
+                                          'last_name':
+                                          test_customer['last_name'],
+                                          'email':
+                                          test_customer['email'],
+                                          'plaintext_password':
+                                          test_customer['plaintext_password']
+                                      }),
+                                      content_type='application/json')
 
         status_code = response.status_code
         response_json = json.loads(response.data)

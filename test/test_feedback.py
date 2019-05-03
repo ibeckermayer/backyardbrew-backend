@@ -18,13 +18,13 @@ def test_submit_feedback(testing_client: FlaskClient, testing_db: SQLAlchemy):
     '''
     test_fb = test_feedback_unresolved[0]
 
-    response = testing_client.post(ENDPOINT,
-                                   data=json.dumps({
-                                       'name': test_fb['name'],
-                                       'email': test_fb['email'],
-                                       'text': test_fb['text']
-                                   }),
-                                   content_type='application/json')
+    response = testing_client.put(ENDPOINT,
+                                  data=json.dumps({
+                                      'name': test_fb['name'],
+                                      'email': test_fb['email'],
+                                      'text': test_fb['text']
+                                  }),
+                                  content_type='application/json')
 
     status_code = response.status_code
     response_json = json.loads(response.data)

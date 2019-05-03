@@ -10,7 +10,7 @@ from app.util import (add_token_to_database, is_token_revoked, revoke_token)
 
 
 class UserRegistrationEndpoint(Resource):
-    def post(self):
+    def put(self):
         user_json = request.get_json()
         if User.get(user_json['email']) is not None:
             raise EmailAlreadyInUse()
@@ -57,7 +57,7 @@ class AccountEndpoint(Resource):
 
 class RefreshEndpoint(Resource):
     @jwt_refresh_token_required
-    def post(self):
+    def put(self):
         email = get_jwt_identity()
         access_token = create_access_token(identity=email)
         add_token_to_database(access_token)
@@ -82,7 +82,7 @@ class Logout2Endpoint(Resource):
 
 
 class FeedbackEndpoint(Resource):
-    def post(self):
+    def put(self):
         feedback_json = request.get_json()
         feedback = Feedback(name=feedback_json['name'],
                             email=feedback_json['email'],
@@ -113,34 +113,6 @@ class FeedbackEndpoint(Resource):
 @jwt.token_in_blacklist_loader
 def check_if_token_revoked(decoded_token):
     return is_token_revoked(decoded_token)
-
-
-class UserLogoutAccess(Resource):
-    def post(self):
-        return {'msg': 'User logout'}
-
-
-class UserLogoutRefresh(Resource):
-    def post(self):
-        return {'msg': 'User logout'}
-
-
-class TokenRefresh(Resource):
-    def post(self):
-        return {'msg': 'Token refresh'}
-
-
-class AllUsers(Resource):
-    def get(self):
-        return {'msg': 'List of users'}
-
-    def delete(self):
-        return {'msg': 'Delete all users'}
-
-
-class SecretResource(Resource):
-    def get(self):
-        return {'answer': 42}
 
 
 resources_dict = {

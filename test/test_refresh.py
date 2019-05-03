@@ -31,7 +31,7 @@ def test_refresh_valid(testing_client: FlaskClient, testing_db: SQLAlchemy):
     header = {'Authorization': 'Bearer ' + refresh_token}
 
     # ask for new access token from refresh endpoint
-    response = testing_client.post(ENDPOINT, headers=header)
+    response = testing_client.put(ENDPOINT, headers=header)
 
     response_json = json.loads(response.data)
     status_code = response.status_code
@@ -88,7 +88,7 @@ def test_jwt_refresh_expired(testing_client: FlaskClient,
     sleep(1.1)  # sleep for 1.1 second to allow token to expire
 
     # ask for new access token from refresh endpoint
-    response = testing_client.post(ENDPOINT, headers=header)
+    response = testing_client.put(ENDPOINT, headers=header)
 
     # should fail
     response_json = json.loads(response.data)

@@ -58,8 +58,8 @@ def test_logout_both_valid(testing_client: FlaskClient,
     assert logout2_response_json['msg'] == 'JWT refresh token revoked'
 
     # check that refresh token no longer gives access to refresh endpoint
-    refresh_response = testing_client.post('api/refresh',
-                                           headers=refresh_header)
+    refresh_response = testing_client.put('api/refresh',
+                                          headers=refresh_header)
     status_code = refresh_response.status_code
     refresh_response_json = json.loads(refresh_response.data)
     assert status_code == 401
@@ -122,8 +122,8 @@ def test_logout_access_expired(testing_client: FlaskClient,
     assert logout2_response_json['msg'] == 'JWT refresh token revoked'
 
     # check that refresh token no longer gives access to refresh endpoint
-    refresh_response = testing_client.post('api/refresh',
-                                           headers=refresh_header)
+    refresh_response = testing_client.put('api/refresh',
+                                          headers=refresh_header)
     status_code = refresh_response.status_code
     refresh_response_json = json.loads(refresh_response.data)
     assert status_code == 401
@@ -191,8 +191,8 @@ def test_logout_refresh_expired(testing_client: FlaskClient,
     assert logout2_response_json['msg'] == 'Token has expired'
 
     # check that refresh token no longer gives access to refresh endpoint
-    refresh_response = testing_client.post('api/refresh',
-                                           headers=refresh_header)
+    refresh_response = testing_client.put('api/refresh',
+                                          headers=refresh_header)
     status_code = refresh_response.status_code
     refresh_response_json = json.loads(refresh_response.data)
     assert status_code == 401

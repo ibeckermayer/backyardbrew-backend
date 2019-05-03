@@ -112,17 +112,6 @@ class Feedback(db.Model):
             cls.rcvd_on).paginate(page, cls.rpp, False).items
 
     @classmethod
-    def count_pages(cls, resolved: bool):
-        '''
-        counts total number of pages in database for resolved or unresolved
-        '''
-        count = Feedback.query.filter_by(resolved=resolved).count()
-        pages = int(count / cls.rpp)
-        if (count % cls.rpp != 0):
-            pages += 1
-        return pages
-
-    @classmethod
     def set_resolved(cls, id: int, resolved: bool):
         '''
         sets a Feedback object's resolved attr to value given by parameter resolved

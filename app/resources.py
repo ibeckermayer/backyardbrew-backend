@@ -104,8 +104,6 @@ class FeedbackEndpoint(Resource):
             resolved = req_json['resolved']
             page = req_json['page']
             return {
-                'total_pages':
-                Feedback.count_pages(resolved),
                 'feedbacks': [
                     fb.to_json()
                     for fb in Feedback.get(resolved=resolved, page=page)

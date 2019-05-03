@@ -210,7 +210,6 @@ def test_get_feedback_no_feedback(testing_client: FlaskClient,
 
     response_json = json.loads(response.data)
     assert response.status_code == 200
-    assert response_json['total_pages'] == 0
     assert len(response_json['feedbacks']) == 0
 
     response = testing_client.get(
@@ -225,7 +224,6 @@ def test_get_feedback_no_feedback(testing_client: FlaskClient,
 
     response_json = json.loads(response.data)
     assert response.status_code == 200
-    assert response_json['total_pages'] == 0
     assert len(response_json['feedbacks']) == 0
 
 
@@ -272,7 +270,6 @@ def test_get_feedback_resolved(testing_client: FlaskClient,
 
     response_json = json.loads(response.data)
     assert response.status_code == 200
-    assert response_json['total_pages'] == 1
     assert len(response_json['feedbacks']) == 1
     assert response_json['feedbacks'][0]['id'] == 1
     assert response_json['feedbacks'][0]['name'] == test_fb_r['name']
@@ -324,7 +321,6 @@ def test_get_feedback_unresolved(testing_client: FlaskClient,
 
     response_json = json.loads(response.data)
     assert response.status_code == 200
-    assert response_json['total_pages'] == 1
     assert len(response_json['feedbacks']) == 1
     assert response_json['feedbacks'][0]['id'] == 2
     assert response_json['feedbacks'][0]['name'] == test_fb_u['name']
@@ -375,7 +371,6 @@ def test_get_feedback_resolved_pag(testing_client: FlaskClient,
     response_json = json.loads(response.data)
     feedbacks = response_json['feedbacks']
     assert response.status_code == 200
-    assert response_json['total_pages'] == 2
     assert len(
         feedbacks
     ) == 10  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable
@@ -396,7 +391,6 @@ def test_get_feedback_resolved_pag(testing_client: FlaskClient,
     response_json = json.loads(response.data)
     feedbacks = response_json['feedbacks']
     assert response.status_code == 200
-    assert response_json['total_pages'] == 2
     assert len(
         feedbacks
     ) == 5  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable
@@ -446,7 +440,6 @@ def test_get_feedback_unresolved_pag(testing_client: FlaskClient,
     response_json = json.loads(response.data)
     feedbacks = response_json['feedbacks']
     assert response.status_code == 200
-    assert response_json['total_pages'] == 2
     assert len(
         feedbacks
     ) == 10  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable
@@ -467,7 +460,6 @@ def test_get_feedback_unresolved_pag(testing_client: FlaskClient,
     response_json = json.loads(response.data)
     feedbacks = response_json['feedbacks']
     assert response.status_code == 200
-    assert response_json['total_pages'] == 2
     assert len(
         feedbacks
     ) == 5  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable

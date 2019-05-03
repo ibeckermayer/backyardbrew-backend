@@ -41,6 +41,29 @@ def handle_user_dne(error: Exception) -> dict:
     return error.to_response()
 
 
+class UserNotAdmin(Exception):
+    '''
+    error for when user tries to access administrator endpoint without admin privileges
+    '''
+    status_code = 401
+    msg = ''
+
+    def __init__(self, email: str):
+        Exception.__init__(self)
+        self.msg = 'User {} does not have admin privileges'.format(email)
+
+    def to_response(self) -> dict:
+        response_dict = dict()
+        response_dict['msg'] = self.msg
+        response = jsonify(response_dict)
+        response.status_code = self.status_code
+        return response
+
+
+def handle_user_not_admin(error: Exception) -> dict:
+    return error.to_response()
+
+
 class PasswordIncorrect(Exception):
     status_code = 401
     msg = ''

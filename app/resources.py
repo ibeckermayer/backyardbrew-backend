@@ -2,7 +2,7 @@ from flask_restful import Resource, request
 from sqlalchemy.exc import IntegrityError
 from app.models import User, Feedback
 from app import db, jwt
-from app.errors import EmailAlreadyInUse, UserDNE, PasswordIncorrect
+from app.errors import EmailAlreadyInUse, UserDNE, PasswordIncorrect, UserNotAdmin
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 jwt_required, jwt_refresh_token_required,
                                 get_jwt_identity, get_raw_jwt)
@@ -89,6 +89,24 @@ class FeedbackEndpoint(Resource):
                             text=feedback_json['text'])
         feedback.save_new()
         return {'msg': 'Feedback submitted'}
+
+    @jwt_required
+    def get(self):
+        email = get_jwt_identity()
+        if User.is_admin(email):
+            req_json = request.get_json()
+            resolved = req_json['resolved']
+            page = req_json['page']
+            return {
+                'total_pages':
+                Feedback.count_pages(resolved),
+                'feedbacks': [
+                    fb.to_json()
+                    for fb in Feedback.get(resolved=resolved, page=page)
+                ]
+            }
+        else:
+            raise UserNotAdmin(email)
 
 
 # Define our callback function to check if a token has been revoked or not

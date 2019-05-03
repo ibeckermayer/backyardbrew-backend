@@ -32,6 +32,8 @@ def create_app(config_name: str) -> Flask:
         app.register_error_handler(errors.UserDNE, errors.handle_user_dne)
         app.register_error_handler(errors.PasswordIncorrect,
                                    errors.handle_password_incorrect)
+        app.register_error_handler(errors.UserNotAdmin,
+                                   errors.handle_user_not_admin)
 
         # register db
         db.init_app(app)

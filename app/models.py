@@ -38,6 +38,10 @@ class User(db.Model):
         '''
         return User.query.filter_by(email=email).first()
 
+    @classmethod
+    def is_admin(cls, email: str) -> bool:
+        return User.get(email).role == ROLES['admin']
+
     def set_password(self, plaintext_password: str):
         self.password_hash = generate_password_hash(plaintext_password)
 
@@ -62,6 +66,7 @@ class User(db.Model):
 
 class Feedback(db.Model):
     __tablename__ = 'feedback'
+    rpp = 10  # results per page
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=False)
@@ -70,10 +75,15 @@ class Feedback(db.Model):
     resolved = db.Column(db.Boolean, nullable=False)
     rcvd_on = db.Column(db.DateTime, nullable=False)
 
-    def __init__(self, name: str, email: str, text: str):
+    def __init__(self,
+                 name: str,
+                 email: str,
+                 text: str,
+                 resolved: bool = False):
+        self.name = name
         self.email = email
         self.text = text
-        self.resolved = False  # new Feedback objects are always unresolved
+        self.resolved = resolved  # default to unresolved
         self.rcvd_on = datetime.now()
 
     def to_json(self) -> dict:
@@ -83,7 +93,7 @@ class Feedback(db.Model):
             'email': self.email,
             'text': self.text,
             'resolved': self.resolved,
-            'rcvd_on': self.rcvd_on
+            'rcvd_on': self.rcvd_on.isoformat()
         }
 
     def save_new(self):
@@ -92,6 +102,25 @@ class Feedback(db.Model):
         '''
         db.session.add(self)
         db.session.commit()
+
+    @classmethod
+    def get(cls, resolved: bool, page: int):
+        '''
+        gets page of resolved or unresolved Feedback objects
+        '''
+        return Feedback.query.filter_by(resolved=resolved).order_by(
+            cls.rcvd_on).all()
+
+    @classmethod
+    def count_pages(cls, resolved: bool):
+        '''
+        counts total number of pages in database for resolved or unresolved
+        '''
+        count = Feedback.query.filter_by(resolved=resolved).count()
+        pages = int(count / cls.rpp)
+        if (count % cls.rpp != 0):
+            pages += 1
+        return pages
 
 
 class TokenBlacklist(db.Model):

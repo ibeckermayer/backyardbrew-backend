@@ -2,12 +2,39 @@ import os
 from app import create_app, db
 from app.models import ROLES, User, Feedback
 from flask_sqlalchemy import SQLAlchemy
+import random
+import string
+import lorem
 
 config_name = os.getenv('APP_SETTINGS')  # config_name = "development"
 app = create_app(config_name)
 '''
 The following are data structures and functions for use in flask shell and testing
 '''
+
+
+def random_lorem() -> str:
+    '''
+    randomly generate one of lorem.sentence(), lorem.paragraph(), or lorem.text()
+    '''
+    choices = ['sentence', 'paragraph', 'text']
+    choice = random.choice(choices)
+    if (choice == 'sentence'):
+        return lorem.sentence()
+    elif (choice == 'paragraph'):
+        return lorem.paragraph()
+    else:
+        return lorem.text()
+
+
+def random_string(stringLength=10) -> str:
+    '''
+    Generate a random string of fixed length
+    '''
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(stringLength))
+
+
 test_users = {
     'test_customer': {
         'first_name': 'test',
@@ -24,6 +51,24 @@ test_users = {
         'role': ROLES['admin']
     }
 }
+'''
+15 resolved feedback examples as a list of dict
+'''
+test_feedback_resolved = [{
+    'name': random_string(),
+    'email': random_string() + '@feedback.com',
+    'text': random_lorem(),
+    'resolved': True
+} for i in range(15)]
+'''
+15 unresolved feedback examples as a list of dict
+'''
+test_feedback_unresolved = [{
+    'name': random_string(),
+    'email': random_string() + '@feedback.com',
+    'text': random_lorem(),
+    'resolved': False
+} for i in range(15)]
 
 
 def reset_db():
@@ -60,6 +105,17 @@ def add_test_admin():
     add_test_user(test_users['test_admin'])
 
 
+def add_test_feedback(test_feedback: dict):
+    '''
+    adds a test_feedback object to the database
+    '''
+    feedback = Feedback(name=test_feedback['name'],
+                        email=test_feedback['email'],
+                        text=test_feedback['text'],
+                        resolved=test_feedback['resolved'])
+    feedback.save_new()
+
+
 @app.shell_context_processor
 def make_shell_context():
     return {
@@ -69,5 +125,12 @@ def make_shell_context():
         'test_users': test_users,
         'add_test_user': add_test_user,
         'add_test_customer': add_test_customer,
-        'add_test_admin': add_test_admin
+        'add_test_admin': add_test_admin,
+        'random_string': random_string,
+        'random_lorem': random_lorem,
+        'test_feedback_resolved': test_feedback_resolved,
+        'test_feedback_unresolved': test_feedback_unresolved,
+        'add_test_feedback': add_test_feedback,
+        'Feedback': Feedback,
+        'User': User
     }

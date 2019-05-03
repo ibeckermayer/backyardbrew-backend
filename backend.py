@@ -126,6 +126,15 @@ def add_all_test_feedback():
     for fb in test_feedback_unresolved:
         add_test_feedback(fb)
 
+def reset_feedback():
+    '''
+    function to reset database to a state useful for testing managefeedback on the frontend
+    '''
+    reset_db()
+    add_test_customer()
+    add_test_admin()
+    add_all_test_feedback()
+
 
 @app.shell_context_processor
 def make_shell_context():
@@ -143,6 +152,7 @@ def make_shell_context():
         'test_feedback_unresolved': test_feedback_unresolved,
         'add_test_feedback': add_test_feedback,
         'add_all_test_feedback': add_all_test_feedback,
+	'reset_feedback': reset_feedback,
         'Feedback': Feedback,
         'User': User
     }

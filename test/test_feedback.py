@@ -44,10 +44,10 @@ def test_put_feedback(testing_client: FlaskClient, testing_db: SQLAlchemy):
     assert db_fb_obj.resolved == False
 
 
-def test_get_feedback_no_jwt(testing_client: FlaskClient,
-                             testing_db: SQLAlchemy):
+def test_post_feedback_no_jwt(testing_client: FlaskClient,
+                              testing_db: SQLAlchemy):
     '''
-    ensure get endpoint is protected by jwt
+    ensure post endpoint is protected by jwt
     '''
     # add single object of resolved feedback to database and a single unresolved feedback
     test_fb_r = test_feedback_resolved[0]
@@ -55,7 +55,7 @@ def test_get_feedback_no_jwt(testing_client: FlaskClient,
     test_fb_u = test_feedback_unresolved[0]
     add_test_feedback(test_fb_u)
 
-    response = testing_client.get(
+    response = testing_client.post(
         ENDPOINT,
         data=json.dumps({
             'resolved': True,
@@ -70,10 +70,10 @@ def test_get_feedback_no_jwt(testing_client: FlaskClient,
     assert response_json['msg'] == 'Missing Authorization Header'
 
 
-def test_get_feedback_jwt_expired(testing_client: FlaskClient,
-                                  testing_db: SQLAlchemy):
+def test_post_feedback_jwt_expired(testing_client: FlaskClient,
+                                   testing_db: SQLAlchemy):
     '''
-    try to get feedback with expired jwt
+    try to post feedback with expired jwt
     '''
     # set access_token to expire quickly
     testing_client.application.config[
@@ -106,7 +106,7 @@ def test_get_feedback_jwt_expired(testing_client: FlaskClient,
     access_token = login_response_json['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
-    response = testing_client.get(
+    response = testing_client.post(
         ENDPOINT,
         data=json.dumps({
             'resolved': True,
@@ -121,10 +121,10 @@ def test_get_feedback_jwt_expired(testing_client: FlaskClient,
     assert response_json['msg'] == 'Token has expired'
 
 
-def test_get_feedback_unauthorized_user(testing_client: FlaskClient,
-                                        testing_db: SQLAlchemy):
+def test_post_feedback_unauthorized_user(testing_client: FlaskClient,
+                                         testing_db: SQLAlchemy):
     '''
-    try to get feedback as non-admin user
+    try to post feedback as non-admin user
     '''
     # add single object of resolved feedback to database and a single unresolved feedback
     test_fb_r = test_feedback_resolved[0]
@@ -154,7 +154,7 @@ def test_get_feedback_unauthorized_user(testing_client: FlaskClient,
     access_header = {'Authorization': 'Bearer ' + access_token}
 
     # try to access endpoint
-    response = testing_client.get(
+    response = testing_client.post(
         ENDPOINT,
         data=json.dumps({
             'resolved': True,
@@ -172,10 +172,10 @@ def test_get_feedback_unauthorized_user(testing_client: FlaskClient,
             test_customer['email'])
 
 
-def test_get_feedback_no_feedback(testing_client: FlaskClient,
-                                  testing_db: SQLAlchemy):
+def test_post_feedback_no_feedback(testing_client: FlaskClient,
+                                   testing_db: SQLAlchemy):
     '''
-    try getting feedback (both resolved and unresolved) with no feedback in the database and ensure
+    try postting feedback (both resolved and unresolved) with no feedback in the database and ensure
     zero pages are calculated and empty list of feedbacks is returned
     '''
     # add admin user to db
@@ -198,7 +198,7 @@ def test_get_feedback_no_feedback(testing_client: FlaskClient,
     access_token = login_response_json['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
-    response = testing_client.get(
+    response = testing_client.post(
         ENDPOINT,
         data=json.dumps({
             'resolved': True,
@@ -212,7 +212,7 @@ def test_get_feedback_no_feedback(testing_client: FlaskClient,
     assert response.status_code == 200
     assert len(response_json['feedbacks']) == 0
 
-    response = testing_client.get(
+    response = testing_client.post(
         ENDPOINT,
         data=json.dumps({
             'resolved': False,
@@ -227,10 +227,10 @@ def test_get_feedback_no_feedback(testing_client: FlaskClient,
     assert len(response_json['feedbacks']) == 0
 
 
-def test_get_feedback_resolved(testing_client: FlaskClient,
-                               testing_db: SQLAlchemy):
+def test_post_feedback_resolved(testing_client: FlaskClient,
+                                testing_db: SQLAlchemy):
     '''
-    get single resolved feedback with no pagination
+    post single resolved feedback with no pagination
     '''
     # add single object of resolved feedback to database and a single unresolved feedback
     test_fb_r = test_feedback_resolved[0]
@@ -258,7 +258,7 @@ def test_get_feedback_resolved(testing_client: FlaskClient,
     access_token = login_response_json['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
-    response = testing_client.get(
+    response = testing_client.post(
         ENDPOINT,
         data=json.dumps({
             'resolved': True,
@@ -278,10 +278,10 @@ def test_get_feedback_resolved(testing_client: FlaskClient,
     assert response_json['feedbacks'][0]['resolved'] == True
 
 
-def test_get_feedback_unresolved(testing_client: FlaskClient,
-                                 testing_db: SQLAlchemy):
+def test_post_feedback_unresolved(testing_client: FlaskClient,
+                                  testing_db: SQLAlchemy):
     '''
-    get single unresolved feedback with no pagination
+    post single unresolved feedback with no pagination
     '''
     # add single object of resolved feedback to database and a single unresolved feedback
     test_fb_r = test_feedback_resolved[0]
@@ -309,7 +309,7 @@ def test_get_feedback_unresolved(testing_client: FlaskClient,
     access_token = login_response_json['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
-    response = testing_client.get(
+    response = testing_client.post(
         ENDPOINT,
         data=json.dumps({
             'resolved': False,
@@ -329,8 +329,8 @@ def test_get_feedback_unresolved(testing_client: FlaskClient,
     assert response_json['feedbacks'][0]['resolved'] == False
 
 
-def test_get_feedback_resolved_pag(testing_client: FlaskClient,
-                                   testing_db: SQLAlchemy):
+def test_post_feedback_resolved_pag(testing_client: FlaskClient,
+                                    testing_db: SQLAlchemy):
     '''
     Test more complex queries for resolved feedback that include pagination, with all 15 resolved and unresolved in the database
     '''
@@ -358,7 +358,7 @@ def test_get_feedback_resolved_pag(testing_client: FlaskClient,
     access_header = {'Authorization': 'Bearer ' + access_token}
 
     # check page 1
-    response = testing_client.get(
+    response = testing_client.post(
         ENDPOINT,
         data=json.dumps({
             'resolved': True,
@@ -378,7 +378,7 @@ def test_get_feedback_resolved_pag(testing_client: FlaskClient,
         assert feedback['resolved'] == True
 
     # check page 2
-    response = testing_client.get(
+    response = testing_client.post(
         ENDPOINT,
         data=json.dumps({
             'resolved': True,
@@ -398,8 +398,8 @@ def test_get_feedback_resolved_pag(testing_client: FlaskClient,
         assert feedback['resolved'] == True
 
 
-def test_get_feedback_unresolved_pag(testing_client: FlaskClient,
-                                     testing_db: SQLAlchemy):
+def test_post_feedback_unresolved_pag(testing_client: FlaskClient,
+                                      testing_db: SQLAlchemy):
     '''
     Test more complex queries for unresolved feedback that include pagination, with all 15 resolved and unresolved in the database
     '''
@@ -427,7 +427,7 @@ def test_get_feedback_unresolved_pag(testing_client: FlaskClient,
     access_header = {'Authorization': 'Bearer ' + access_token}
 
     # check page 1
-    response = testing_client.get(
+    response = testing_client.post(
         ENDPOINT,
         data=json.dumps({
             'resolved': False,
@@ -447,7 +447,7 @@ def test_get_feedback_unresolved_pag(testing_client: FlaskClient,
         assert feedback['resolved'] == False
 
     # check page 2
-    response = testing_client.get(
+    response = testing_client.post(
         ENDPOINT,
         data=json.dumps({
             'resolved': False,
@@ -467,15 +467,15 @@ def test_get_feedback_unresolved_pag(testing_client: FlaskClient,
         assert feedback['resolved'] == False
 
 
-def test_post_feedback_no_jwt(testing_client: FlaskClient,
-                              testing_db: SQLAlchemy):
+def test_patch_feedback_no_jwt(testing_client: FlaskClient,
+                               testing_db: SQLAlchemy):
     '''
-    Test post feedback without jwt header
+    Test patch feedback without jwt header
     '''
     # add all the test_feedback from backend.py to database
     add_all_test_feedback()
 
-    response = testing_client.post(
+    response = testing_client.patch(
         ENDPOINT,
         data=json.dumps({
             'id': 1,  # hardcoded id 1
@@ -488,10 +488,10 @@ def test_post_feedback_no_jwt(testing_client: FlaskClient,
     assert response_json['msg'] == 'Missing Authorization Header'
 
 
-def test_post_feedback_jwt_expired(testing_client: FlaskClient,
-                                   testing_db: SQLAlchemy):
+def test_patch_feedback_jwt_expired(testing_client: FlaskClient,
+                                    testing_db: SQLAlchemy):
     '''
-    test post feedback with expired jwt
+    test patch feedback with expired jwt
     '''
     # set access_token to expire quickly
     testing_client.application.config[
@@ -522,7 +522,7 @@ def test_post_feedback_jwt_expired(testing_client: FlaskClient,
     access_token = login_response_json['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
-    response = testing_client.post(
+    response = testing_client.patch(
         ENDPOINT,
         data=json.dumps({
             'id': 1,  # hardcoded row 1
@@ -536,10 +536,10 @@ def test_post_feedback_jwt_expired(testing_client: FlaskClient,
     assert response_json['msg'] == 'Token has expired'
 
 
-def test_post_feedback_unauthorized_user(testing_client: FlaskClient,
-                                         testing_db: SQLAlchemy):
+def test_patch_feedback_unauthorized_user(testing_client: FlaskClient,
+                                          testing_db: SQLAlchemy):
     '''
-    test post feedback with non-admin user
+    test patch feedback with non-admin user
     '''
     # add all the test_feedback from backend.py to database
     add_all_test_feedback()
@@ -565,7 +565,7 @@ def test_post_feedback_unauthorized_user(testing_client: FlaskClient,
     access_token = login_response_json['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
-    response = testing_client.post(
+    response = testing_client.patch(
         ENDPOINT,
         data=json.dumps({
             'id': 1,  # hardcoded row 1
@@ -583,8 +583,8 @@ def test_post_feedback_unauthorized_user(testing_client: FlaskClient,
             test_customer['email'])
 
 
-def test_post_feedback_res_to_un(testing_client: FlaskClient,
-                                 testing_db: SQLAlchemy):
+def test_patch_feedback_res_to_un(testing_client: FlaskClient,
+                                  testing_db: SQLAlchemy):
     '''
     Test changing a resolved feedback object to unresolved
     '''
@@ -611,14 +611,14 @@ def test_post_feedback_res_to_un(testing_client: FlaskClient,
     access_token = login_response_json['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
-    # get page 2
-    response = testing_client.get(ENDPOINT,
-                                  data=json.dumps({
-                                      'resolved': True,
-                                      'page': 2,
-                                  }),
-                                  content_type='application/json',
-                                  headers=access_header)
+    # post page 2
+    response = testing_client.post(ENDPOINT,
+                                   data=json.dumps({
+                                       'resolved': True,
+                                       'page': 2,
+                                   }),
+                                   content_type='application/json',
+                                   headers=access_header)
 
     response_json = json.loads(response.data)
     feedbacks = response_json['feedbacks']
@@ -632,16 +632,16 @@ def test_post_feedback_res_to_un(testing_client: FlaskClient,
     id = fb['id']
 
     # edit feedback object
-    response = testing_client.post(ENDPOINT,
-                                   data=json.dumps({
-                                       'id': id,
-                                       'resolved': False
-                                   }),
-                                   content_type='application/json',
-                                   headers=access_header)
+    response = testing_client.patch(ENDPOINT,
+                                    data=json.dumps({
+                                        'id': id,
+                                        'resolved': False
+                                    }),
+                                    content_type='application/json',
+                                    headers=access_header)
 
     # check page 2 again, this time there should only be 4 feedbacks
-    response = testing_client.get(
+    response = testing_client.post(
         ENDPOINT,
         data=json.dumps({
             'resolved': True,
@@ -658,8 +658,8 @@ def test_post_feedback_res_to_un(testing_client: FlaskClient,
     ) == 4  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable
 
 
-def test_post_feedback_un_to_res(testing_client: FlaskClient,
-                                 testing_db: SQLAlchemy):
+def test_patch_feedback_un_to_res(testing_client: FlaskClient,
+                                  testing_db: SQLAlchemy):
     '''
     Test changing a unresolved feedback object to resolved
     '''
@@ -686,14 +686,14 @@ def test_post_feedback_un_to_res(testing_client: FlaskClient,
     access_token = login_response_json['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
-    # get page 2
-    response = testing_client.get(ENDPOINT,
-                                  data=json.dumps({
-                                      'resolved': False,
-                                      'page': 2,
-                                  }),
-                                  content_type='application/json',
-                                  headers=access_header)
+    # post page 2
+    response = testing_client.post(ENDPOINT,
+                                   data=json.dumps({
+                                       'resolved': False,
+                                       'page': 2,
+                                   }),
+                                   content_type='application/json',
+                                   headers=access_header)
 
     response_json = json.loads(response.data)
     feedbacks = response_json['feedbacks']
@@ -707,16 +707,16 @@ def test_post_feedback_un_to_res(testing_client: FlaskClient,
     id = fb['id']
 
     # edit feedback object
-    response = testing_client.post(ENDPOINT,
-                                   data=json.dumps({
-                                       'id': id,
-                                       'resolved': True
-                                   }),
-                                   content_type='application/json',
-                                   headers=access_header)
+    response = testing_client.patch(ENDPOINT,
+                                    data=json.dumps({
+                                        'id': id,
+                                        'resolved': True
+                                    }),
+                                    content_type='application/json',
+                                    headers=access_header)
 
     # check page 2 again, this time there should only be 4 feedbacks
-    response = testing_client.get(
+    response = testing_client.post(
         ENDPOINT,
         data=json.dumps({
             'resolved': False,

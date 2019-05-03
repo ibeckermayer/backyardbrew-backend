@@ -94,7 +94,7 @@ class FeedbackEndpoint(Resource):
         return {'msg': 'Feedback submitted'}
 
     @jwt_required
-    def get(self):
+    def post(self):
         '''
         get a page of either resolved or unresolved feedback
         '''
@@ -113,7 +113,7 @@ class FeedbackEndpoint(Resource):
             raise UserNotAdmin(email)
 
     @jwt_required
-    def post(self):
+    def patch(self):
         '''
         update resolved flag on a feedback object, given by id
         NOTE: Do not simply toggle the resolved column of the object. If multiple admins are logged in going through

@@ -13,7 +13,7 @@ from app.models import Feedback
 ENDPOINT = '/api/feedback'
 
 
-def test_submit_feedback(testing_client: FlaskClient, testing_db: SQLAlchemy):
+def test_put_feedback(testing_client: FlaskClient, testing_db: SQLAlchemy):
     '''
     test feedback is submitted and saved successfully to the database
     '''

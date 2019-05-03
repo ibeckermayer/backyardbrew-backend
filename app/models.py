@@ -109,7 +109,7 @@ class Feedback(db.Model):
         gets page of resolved or unresolved Feedback objects
         '''
         return Feedback.query.filter_by(resolved=resolved).order_by(
-            cls.rcvd_on).all()
+            cls.rcvd_on).paginate(page, cls.rpp, False).items
 
     @classmethod
     def count_pages(cls, resolved: bool):

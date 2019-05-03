@@ -154,10 +154,67 @@ def test_get_feedback_unauthorized_user(testing_client: FlaskClient,
     response_json = json.loads(response.data)
 
     # should say this user is unauthorized
-    assert response.status_code == 401
+    assert response.status_code == 403
     assert response_json[
         'msg'] == 'User {} does not have admin privileges'.format(
             test_customer['email'])
+
+
+def test_get_feedback_no_feedback(testing_client: FlaskClient,
+                                  testing_db: SQLAlchemy):
+    '''
+    try getting feedback (both resolved and unresolved) with no feedback in the database and ensure
+    zero pages are calculated and empty list of feedbacks is returned
+    '''
+    # add admin user to db
+    test_admin = test_users['test_admin']
+    add_test_user(test_admin)
+
+    # login as admin
+    login_response = testing_client.post('/api/login',
+                                         data=json.dumps({
+                                             'email':
+                                             test_admin['email'],
+                                             'plaintext_password':
+                                             test_admin['plaintext_password']
+                                         }),
+                                         content_type='application/json')
+
+    login_response_json = json.loads(login_response.data)
+
+    # create access header
+    access_token = login_response_json['access_token']
+    access_header = {'Authorization': 'Bearer ' + access_token}
+
+    response = testing_client.get(
+        ENDPOINT,
+        data=json.dumps({
+            'resolved': True,
+            'page': 1,
+        }),
+        content_type='application/json',
+        headers=access_header,
+    )
+
+    response_json = json.loads(response.data)
+    assert response.status_code == 200
+    assert response_json['total_pages'] == 0
+    assert len(response_json['feedbacks']) == 0
+
+    response = testing_client.get(
+        ENDPOINT,
+        data=json.dumps({
+            'resolved': False,
+            'page': 1,
+        }),
+        content_type='application/json',
+        headers=access_header,
+    )
+
+    response_json = json.loads(response.data)
+    assert response.status_code == 200
+    assert response_json['total_pages'] == 0
+    assert len(response_json['feedbacks']) == 0
 
 
 def test_get_feedback_resolved(testing_client: FlaskClient,

@@ -45,7 +45,7 @@ class UserNotAdmin(Exception):
     '''
     error for when user tries to access administrator endpoint without admin privileges
     '''
-    status_code = 401
+    status_code = 403
     msg = ''
 
     def __init__(self, email: str):

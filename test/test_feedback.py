@@ -8,13 +8,14 @@ import lorem
 from backend import (test_feedback_unresolved, test_feedback_resolved,
                      add_test_feedback, test_users, add_test_user,
                      add_all_test_feedback)
+from app.models import Feedback
 
 ENDPOINT = '/api/feedback'
 
 
 def test_submit_feedback(testing_client: FlaskClient, testing_db: SQLAlchemy):
     '''
-    test feedback is submitted successfully
+    test feedback is submitted and saved successfully to the database
     '''
     test_fb = test_feedback_unresolved[0]
 
@@ -32,11 +33,21 @@ def test_submit_feedback(testing_client: FlaskClient, testing_db: SQLAlchemy):
     assert status_code == 200
     assert response_json['msg'] == 'Feedback submitted'
 
+    # check that feedback object has indeed been saved to db
+    db_fb_objs = Feedback.get(False, 1)
+    db_fb_obj = db_fb_objs[0]
+    assert len(db_fb_objs) == 1
+    assert db_fb_obj.id == 1
+    assert db_fb_obj.name == test_fb['name']
+    assert db_fb_obj.email == test_fb['email']
+    assert db_fb_obj.text == test_fb['text']
+    assert db_fb_obj.resolved == False
+
 
 def test_get_feedback_no_jwt(testing_client: FlaskClient,
                              testing_db: SQLAlchemy):
     '''
-    ensure endpoint is protected by jwt
+    ensure get endpoint is protected by jwt
     '''
     # add single object of resolved feedback to database and a single unresolved feedback
     test_fb_r = test_feedback_resolved[0]
@@ -62,7 +73,7 @@ def test_get_feedback_no_jwt(testing_client: FlaskClient,
 def test_get_feedback_jwt_expired(testing_client: FlaskClient,
                                   testing_db: SQLAlchemy):
     '''
-    get single resolved feedback with no pagination
+    try to get feedback with expired jwt
     '''
     # set access_token to expire quickly
     testing_client.application.config[
@@ -113,7 +124,7 @@ def test_get_feedback_jwt_expired(testing_client: FlaskClient,
 def test_get_feedback_unauthorized_user(testing_client: FlaskClient,
                                         testing_db: SQLAlchemy):
     '''
-    attempt to access endpoint as customer
+    try to get feedback as non-admin user
     '''
     # add single object of resolved feedback to database and a single unresolved feedback
     test_fb_r = test_feedback_resolved[0]
@@ -462,3 +473,269 @@ def test_get_feedback_unresolved_pag(testing_client: FlaskClient,
     ) == 5  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable
     for feedback in feedbacks:
         assert feedback['resolved'] == False
+
+
+def test_post_feedback_no_jwt(testing_client: FlaskClient,
+                              testing_db: SQLAlchemy):
+    '''
+    Test post feedback without jwt header
+    '''
+    # add all the test_feedback from backend.py to database
+    add_all_test_feedback()
+
+    response = testing_client.post(
+        ENDPOINT,
+        data=json.dumps({
+            'id': 1,  # hardcoded id 1
+            'resolved': True,
+        }),
+        content_type='application/json')
+    response_json = json.loads(response.data)
+
+    assert response.status_code == 401
+    assert response_json['msg'] == 'Missing Authorization Header'
+
+
+def test_post_feedback_jwt_expired(testing_client: FlaskClient,
+                                   testing_db: SQLAlchemy):
+    '''
+    test post feedback with expired jwt
+    '''
+    # set access_token to expire quickly
+    testing_client.application.config[
+        'JWT_ACCESS_TOKEN_EXPIRES'] = relativedelta.relativedelta(
+            microseconds=1)  # access token expires in 1 microsecond (minimum)
+
+    # add all the test_feedback from backend.py to database
+    add_all_test_feedback()
+
+    # add admin user to db
+    test_admin = test_users['test_admin']
+    add_test_user(test_admin)
+
+    # login as admin
+    login_response = testing_client.post('/api/login',
+                                         data=json.dumps({
+                                             'email':
+                                             test_admin['email'],
+                                             'plaintext_password':
+                                             test_admin['plaintext_password']
+                                         }),
+                                         content_type='application/json')
+
+    login_response_json = json.loads(login_response.data)
+    sleep(1.1)  # sleep for 1.1 second to allow access_token to expire
+
+    # create access header
+    access_token = login_response_json['access_token']
+    access_header = {'Authorization': 'Bearer ' + access_token}
+
+    response = testing_client.post(
+        ENDPOINT,
+        data=json.dumps({
+            'id': 1,  # hardcoded row 1
+            'resolved': False
+        }),
+        content_type='application/json',
+        headers=access_header)
+
+    response_json = json.loads(response.data)
+    assert response.status_code == 401
+    assert response_json['msg'] == 'Token has expired'
+
+
+def test_post_feedback_unauthorized_user(testing_client: FlaskClient,
+                                         testing_db: SQLAlchemy):
+    '''
+    test post feedback with non-admin user
+    '''
+    # add all the test_feedback from backend.py to database
+    add_all_test_feedback()
+
+    # add customer user to db
+    test_customer = test_users['test_customer']
+    add_test_user(test_customer)
+
+    # login as customer
+    login_response = testing_client.post(
+        '/api/login',
+        data=json.dumps({
+            'email':
+            test_customer['email'],
+            'plaintext_password':
+            test_customer['plaintext_password']
+        }),
+        content_type='application/json')
+    # login should succeed
+    login_response_json = json.loads(login_response.data)
+
+    # create access header
+    access_token = login_response_json['access_token']
+    access_header = {'Authorization': 'Bearer ' + access_token}
+
+    response = testing_client.post(
+        ENDPOINT,
+        data=json.dumps({
+            'id': 1,  # hardcoded row 1
+            'resolved': False
+        }),
+        content_type='application/json',
+        headers=access_header)
+
+    response_json = json.loads(response.data)
+
+    # should say this user is unauthorized
+    assert response.status_code == 403
+    assert response_json[
+        'msg'] == 'User {} does not have admin privileges'.format(
+            test_customer['email'])
+
+
+def test_post_feedback_res_to_un(testing_client: FlaskClient,
+                                 testing_db: SQLAlchemy):
+    '''
+    Test changing a resolved feedback object to unresolved
+    '''
+    # add all the test_feedback from backend.py to database
+    add_all_test_feedback()
+
+    # add admin user to db
+    test_admin = test_users['test_admin']
+    add_test_user(test_admin)
+
+    # login as admin
+    login_response = testing_client.post('/api/login',
+                                         data=json.dumps({
+                                             'email':
+                                             test_admin['email'],
+                                             'plaintext_password':
+                                             test_admin['plaintext_password']
+                                         }),
+                                         content_type='application/json')
+
+    login_response_json = json.loads(login_response.data)
+
+    # create access header
+    access_token = login_response_json['access_token']
+    access_header = {'Authorization': 'Bearer ' + access_token}
+
+    # get page 2
+    response = testing_client.get(ENDPOINT,
+                                  data=json.dumps({
+                                      'resolved': True,
+                                      'page': 2,
+                                  }),
+                                  content_type='application/json',
+                                  headers=access_header)
+
+    response_json = json.loads(response.data)
+    feedbacks = response_json['feedbacks']
+    assert response.status_code == 200
+    assert len(
+        feedbacks
+    ) == 5  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable
+
+    # extract feedback object to change
+    fb = feedbacks[0]
+    id = fb['id']
+
+    # edit feedback object
+    response = testing_client.post(ENDPOINT,
+                                   data=json.dumps({
+                                       'id': id,
+                                       'resolved': False
+                                   }),
+                                   content_type='application/json',
+                                   headers=access_header)
+
+    # check page 2 again, this time there should only be 4 feedbacks
+    response = testing_client.get(
+        ENDPOINT,
+        data=json.dumps({
+            'resolved': True,
+            'page': 2,
+        }),
+        content_type='application/json',
+        headers=access_header,
+    )
+    response_json = json.loads(response.data)
+    feedbacks = response_json['feedbacks']
+    assert response.status_code == 200
+    assert len(
+        feedbacks
+    ) == 4  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable
+
+
+def test_post_feedback_un_to_res(testing_client: FlaskClient,
+                                 testing_db: SQLAlchemy):
+    '''
+    Test changing a unresolved feedback object to resolved
+    '''
+    # add all the test_feedback from backend.py to database
+    add_all_test_feedback()
+
+    # add admin user to db
+    test_admin = test_users['test_admin']
+    add_test_user(test_admin)
+
+    # login as admin
+    login_response = testing_client.post('/api/login',
+                                         data=json.dumps({
+                                             'email':
+                                             test_admin['email'],
+                                             'plaintext_password':
+                                             test_admin['plaintext_password']
+                                         }),
+                                         content_type='application/json')
+
+    login_response_json = json.loads(login_response.data)
+
+    # create access header
+    access_token = login_response_json['access_token']
+    access_header = {'Authorization': 'Bearer ' + access_token}
+
+    # get page 2
+    response = testing_client.get(ENDPOINT,
+                                  data=json.dumps({
+                                      'resolved': False,
+                                      'page': 2,
+                                  }),
+                                  content_type='application/json',
+                                  headers=access_header)
+
+    response_json = json.loads(response.data)
+    feedbacks = response_json['feedbacks']
+    assert response.status_code == 200
+    assert len(
+        feedbacks
+    ) == 5  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable
+
+    # extract feedback object to change
+    fb = feedbacks[0]
+    id = fb['id']
+
+    # edit feedback object
+    response = testing_client.post(ENDPOINT,
+                                   data=json.dumps({
+                                       'id': id,
+                                       'resolved': True
+                                   }),
+                                   content_type='application/json',
+                                   headers=access_header)
+
+    # check page 2 again, this time there should only be 4 feedbacks
+    response = testing_client.get(
+        ENDPOINT,
+        data=json.dumps({
+            'resolved': False,
+            'page': 2,
+        }),
+        content_type='application/json',
+        headers=access_header,
+    )
+    response_json = json.loads(response.data)
+    feedbacks = response_json['feedbacks']
+    assert response.status_code == 200
+    assert len(
+        feedbacks
+    ) == 4  # NOTE: currently hardcoded, bad practice and should eventually make all pagination related vars programatic from config variable

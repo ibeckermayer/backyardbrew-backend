@@ -122,6 +122,15 @@ class Feedback(db.Model):
             pages += 1
         return pages
 
+    @classmethod
+    def set_resolved(cls, id: int, resolved: bool):
+        '''
+        sets a Feedback object's resolved attr to value given by parameter resolved
+        '''
+        fb = Feedback.query.get(id)
+        fb.resolved = resolved
+        db.session.commit()
+
 
 class TokenBlacklist(db.Model):
     __tablename__ = 'token_black_list'

@@ -83,6 +83,9 @@ class Logout2Endpoint(Resource):
 
 class FeedbackEndpoint(Resource):
     def put(self):
+        '''
+        submit new piece of feedback
+        '''
         feedback_json = request.get_json()
         feedback = Feedback(name=feedback_json['name'],
                             email=feedback_json['email'],
@@ -92,6 +95,9 @@ class FeedbackEndpoint(Resource):
 
     @jwt_required
     def get(self):
+        '''
+        get a page of either resolved or unresolved feedback
+        '''
         email = get_jwt_identity()
         if User.is_admin(email):
             req_json = request.get_json()
@@ -104,6 +110,29 @@ class FeedbackEndpoint(Resource):
                     fb.to_json()
                     for fb in Feedback.get(resolved=resolved, page=page)
                 ]
+            }
+        else:
+            raise UserNotAdmin(email)
+
+    @jwt_required
+    def post(self):
+        '''
+        update resolved flag on a feedback object, given by id
+        NOTE: Do not simply toggle the resolved column of the object. If multiple admins are logged in going through
+        feedback, a toggle could possibly result in a piece of feedback being marked incorrectly depending on
+        the 'phase difference' between when their respective frontends were last updated on the backend.
+        '''
+        email = get_jwt_identity()
+        if User.is_admin(email):
+            req_json = request.get_json()
+            id = req_json['id']  # specifies which feedback object to edit
+            resolved = req_json[
+                'resolved']  # states whether the item should be marked resolved or unresolved
+            Feedback.set_resolved(id, resolved)
+            return {
+                'msg':
+                'Feedback object {} resolved attribute set to {}'.format(
+                    id, resolved)
             }
         else:
             raise UserNotAdmin(email)

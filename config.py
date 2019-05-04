@@ -16,13 +16,15 @@ class Config(object):
 class DevelopmentConfig(Config):
     """Configurations for Development."""
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/backyardbrew_dev_db'
+    # SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/backyardbrew_dev_db' # uncomment for OSX
+    SQLALCHEMY_DATABASE_URI = 'postgresql:///backyardbrew_dev_db' # uncomment for Ubuntu
 
 
 class TestingConfig(Config):
     """Configurations for Testing, with a separate test database."""
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/backyardbrew_test_db'
+    # SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/backyardbrew_test_db' # uncomment for OSX
+    SQLALCHEMY_DATABASE_URI = 'postgresql:///backyardbrew_test_db' # uncomment for Ubuntu
     DEBUG = True
 
 

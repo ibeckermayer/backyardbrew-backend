@@ -8,7 +8,7 @@ class Config(object):
     SECRET_KEY = os.getenv('SECRET')
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SERVER_NAME = "127.0.0.1:5000"
+    # SERVER_NAME = "127.0.0.1:5000"
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
 
@@ -18,6 +18,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
     # SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/backyardbrew_dev_db' # uncomment for OSX
     SQLALCHEMY_DATABASE_URI = 'postgresql:///backyardbrew_dev_db' # uncomment for Ubuntu
+    SECRET_KEY = 'my-super-secret-key'
 
 
 class TestingConfig(Config):

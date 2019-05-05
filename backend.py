@@ -156,3 +156,8 @@ def make_shell_context():
         'Feedback': Feedback,
         'User': User
     }
+
+if __name__ == '__main__':
+    config_name = os.getenv('APP_SETTINGS')  # config_name = "development"
+    app = create_app(config_name)
+    app.run()

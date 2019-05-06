@@ -16,16 +16,16 @@ class Config(object):
 class DevelopmentConfig(Config):
     """Configurations for Development."""
     DEBUG = True
-    # SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/backyardbrew_dev_db' # uncomment for OSX
-    SQLALCHEMY_DATABASE_URI = 'postgresql:///backyardbrew_dev_db' # uncomment for Ubuntu
+    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/backyardbrew_dev_db'  # uncomment for OSX
+    # SQLALCHEMY_DATABASE_URI = 'postgresql:///backyardbrew_dev_db'  # uncomment for Ubuntu
     SECRET_KEY = 'my-super-secret-key'
 
 
 class TestingConfig(Config):
     """Configurations for Testing, with a separate test database."""
     TESTING = True
-    # SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/backyardbrew_test_db' # uncomment for OSX
-    SQLALCHEMY_DATABASE_URI = 'postgresql:///backyardbrew_test_db' # uncomment for Ubuntu
+    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/backyardbrew_test_db'  # uncomment for OSX
+    # SQLALCHEMY_DATABASE_URI = 'postgresql:///backyardbrew_test_db'  # uncomment for Ubuntu
     DEBUG = True
 
 
@@ -46,3 +46,5 @@ app_config = {
     'staging': StagingConfig,
     'production': ProductionConfig
 }
+
+SQUARE_ACCESS_TOKEN = os.getenv('SQUARE_ACCESS_TOKEN')

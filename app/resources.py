@@ -7,6 +7,10 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 jwt_required, jwt_refresh_token_required,
                                 get_jwt_identity, get_raw_jwt)
 from app.util import (add_token_to_database, is_token_revoked, revoke_token)
+import squareconnect
+from squareconnect.apis.catalog_api import CatalogApi
+from squareconnect.models import SearchCatalogObjectsRequest
+from config import SQUARE_ACCESS_TOKEN
 
 
 class UserRegistrationEndpoint(Resource):
@@ -142,6 +146,41 @@ class FeedbackEndpoint(Resource):
             raise UserNotAdmin(email)
 
 
+class FullCatalog(Resource):
+    '''
+    NOTE: Super-annoying-ly, the api doesn't automatically return link ITEM catalog objects to their respective IMAGE
+    This endpoint is built to grab all the ITEM's and IMAGE's, associate all the ITEM objects with their corresponding IMAGE
+    and then return the ITEM list. The frontend can then store/sort/display this data.
+    '''
+
+    def get(self):
+        api_instance = CatalogApi()
+        api_instance.api_client.configuration.access_token = SQUARE_ACCESS_TOKEN
+        body = SearchCatalogObjectsRequest(
+            object_types=["ITEM", "IMAGE"])  # specify all ITEM and IMAGE
+        items_and_images = api_instance.search_catalog_objects(
+            body=body).objects
+        items = self.associate_item_with_image_url(
+            list(filter(lambda obj: obj.type == 'ITEM', items_and_images)),
+            list(filter(lambda obj: obj.type == 'IMAGE', items_and_images)))
+        return {
+            'msg': 'Items retrieved',
+            'items': [item.item_data.to_dict() for item in items]
+        }
+
+    def associate_item_with_image_url(self, items, images):
+        '''
+        because the square API doesn't gracefully do this for us, we manually fill out each item's
+        item_data.image_url with appropriate image url
+        '''
+        for item in items:
+            for image in images:
+                if (item.image_id == image.id):
+                    item.item_data.image_url = image.image_data.url
+                    break
+        return items
+
+
 # Define our callback function to check if a token has been revoked or not
 @jwt.token_in_blacklist_loader
 def check_if_token_revoked(decoded_token):
@@ -155,5 +194,6 @@ resources_dict = {
     '/api/refresh': RefreshEndpoint,
     '/api/logout1': Logout1Endpoint,
     '/api/logout2': Logout2Endpoint,
-    '/api/feedback': FeedbackEndpoint
+    '/api/feedback': FeedbackEndpoint,
+    '/api/fullcatalog': FullCatalog
 }

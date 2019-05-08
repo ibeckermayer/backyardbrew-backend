@@ -4,11 +4,9 @@ from dateutil import relativedelta
 
 class Config(object):
     """Parent configuration class."""
-    # DEBUG = True
-    SECRET_KEY = os.getenv('SECRET')
+    SECRET_KEY = os.urandom(12).hex()
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    # SERVER_NAME = "127.0.0.1:5000"
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
 
@@ -18,15 +16,14 @@ class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/backyardbrew_dev_db'  # uncomment for OSX
     # SQLALCHEMY_DATABASE_URI = 'postgresql:///backyardbrew_dev_db'  # uncomment for Ubuntu
-    SECRET_KEY = 'my-super-secret-key'
 
 
 class TestingConfig(Config):
     """Configurations for Testing, with a separate test database."""
     TESTING = True
+    DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/backyardbrew_test_db'  # uncomment for OSX
     # SQLALCHEMY_DATABASE_URI = 'postgresql:///backyardbrew_test_db'  # uncomment for Ubuntu
-    DEBUG = True
 
 
 class StagingConfig(Config):

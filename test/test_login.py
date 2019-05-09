@@ -31,8 +31,8 @@ def test_login_success(testing_client: FlaskClient, testing_db: SQLAlchemy):
     assert response_json['user']['first_name'] == test_customer['first_name']
     assert response_json['user']['last_name'] == test_customer['last_name']
     assert response_json['user']['role'] == test_customer['role']
-    assert response_json.get('access_token') != None
-    assert response_json.get('refresh_token') != None
+    assert response_json['user'].get('access_token') != None
+    assert response_json['user'].get('refresh_token') != None
 
 
 def test_login_user_dne(testing_client: FlaskClient, testing_db: SQLAlchemy):
@@ -52,8 +52,7 @@ def test_login_user_dne(testing_client: FlaskClient, testing_db: SQLAlchemy):
     assert status_code == 404
     assert response_json['msg'] == 'User {} doesn\'t exist'.format(
         test_customer['email'])
-    assert response_json.get('access_token') == None
-    assert response_json.get('refresh_token') == None
+    assert response_json.get('user') == None
 
 
 def test_login_wrong_pwd(testing_client: FlaskClient, testing_db: SQLAlchemy):
@@ -74,5 +73,4 @@ def test_login_wrong_pwd(testing_client: FlaskClient, testing_db: SQLAlchemy):
     assert status_code == 401
     assert response_json['msg'] == 'Password for user {} incorrect'.format(
         test_customer['email'])
-    assert response_json.get('access_token') == None
-    assert response_json.get('refresh_token') == None
+    assert response_json.get('user') == None

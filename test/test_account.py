@@ -38,7 +38,7 @@ def test_jwt_access_valid(testing_client: FlaskClient, testing_db: SQLAlchemy):
     login_response_json = json.loads(login_response.data)
 
     # get access token and build header for jwt authentication
-    access_token = login_response_json['access_token']
+    access_token = login_response_json['user']['access_token']
     header = {'Authorization': 'Bearer ' + access_token}
 
     # ping account endpoint with access token in header
@@ -80,7 +80,7 @@ def test_jwt_access_expired(testing_client: FlaskClient,
     login_response_json = json.loads(login_response.data)
 
     # get access token and build header for jwt authentication
-    access_token = login_response_json['access_token']
+    access_token = login_response_json['user']['access_token']
     header = {'Authorization': 'Bearer ' + access_token}
 
     # ping account endpoint with access token in header

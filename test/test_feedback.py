@@ -103,7 +103,7 @@ def test_post_feedback_jwt_expired(testing_client: FlaskClient,
     login_response_json = json.loads(login_response.data)
 
     # create access header
-    access_token = login_response_json['access_token']
+    access_token = login_response_json['user']['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
     response = testing_client.post(
@@ -150,7 +150,7 @@ def test_post_feedback_unauthorized_user(testing_client: FlaskClient,
     login_response_json = json.loads(login_response.data)
 
     # create access header
-    access_token = login_response_json['access_token']
+    access_token = login_response_json['user']['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
     # try to access endpoint
@@ -195,7 +195,7 @@ def test_post_feedback_no_feedback(testing_client: FlaskClient,
     login_response_json = json.loads(login_response.data)
 
     # create access header
-    access_token = login_response_json['access_token']
+    access_token = login_response_json['user']['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
     response = testing_client.post(
@@ -257,7 +257,7 @@ def test_post_feedback_resolved(testing_client: FlaskClient,
     login_response_json = json.loads(login_response.data)
 
     # create access header
-    access_token = login_response_json['access_token']
+    access_token = login_response_json['user']['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
     response = testing_client.post(
@@ -309,7 +309,7 @@ def test_post_feedback_unresolved(testing_client: FlaskClient,
     login_response_json = json.loads(login_response.data)
 
     # create access header
-    access_token = login_response_json['access_token']
+    access_token = login_response_json['user']['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
     response = testing_client.post(
@@ -358,7 +358,7 @@ def test_post_feedback_resolved_pag(testing_client: FlaskClient,
     login_response_json = json.loads(login_response.data)
 
     # create access header
-    access_token = login_response_json['access_token']
+    access_token = login_response_json['user']['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
     # check page 1
@@ -429,7 +429,7 @@ def test_post_feedback_unresolved_pag(testing_client: FlaskClient,
     login_response_json = json.loads(login_response.data)
 
     # create access header
-    access_token = login_response_json['access_token']
+    access_token = login_response_json['user']['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
     # check page 1
@@ -527,7 +527,7 @@ def test_patch_feedback_jwt_expired(testing_client: FlaskClient,
     sleep(1.1)  # sleep for 1.1 second to allow access_token to expire
 
     # create access header
-    access_token = login_response_json['access_token']
+    access_token = login_response_json['user']['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
     response = testing_client.patch(
@@ -570,7 +570,7 @@ def test_patch_feedback_unauthorized_user(testing_client: FlaskClient,
     login_response_json = json.loads(login_response.data)
 
     # create access header
-    access_token = login_response_json['access_token']
+    access_token = login_response_json['user']['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
     response = testing_client.patch(
@@ -616,7 +616,7 @@ def test_patch_feedback_res_to_un(testing_client: FlaskClient,
     login_response_json = json.loads(login_response.data)
 
     # create access header
-    access_token = login_response_json['access_token']
+    access_token = login_response_json['user']['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
     # post page 2
@@ -695,7 +695,7 @@ def test_patch_feedback_un_to_res(testing_client: FlaskClient,
     login_response_json = json.loads(login_response.data)
 
     # create access header
-    access_token = login_response_json['access_token']
+    access_token = login_response_json['user']['access_token']
     access_header = {'Authorization': 'Bearer ' + access_token}
 
     # post page 2

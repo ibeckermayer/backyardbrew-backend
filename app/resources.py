@@ -47,9 +47,7 @@ class UserLoginEndpoint(Resource):
 
             return {
                 'msg': 'User {} logged in successfully'.format(user.email),
-                'user': user.to_json(),
-                'access_token': access_token,
-                'refresh_token': refresh_token
+                'user': user.to_json(access_token, refresh_token),
             }
         else:
             raise PasswordIncorrect(user.email)

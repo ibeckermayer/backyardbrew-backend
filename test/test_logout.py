@@ -33,8 +33,8 @@ def test_logout_both_valid(testing_client: FlaskClient,
     login_response_json = json.loads(login_response.data)
 
     # extract tokens
-    access_token = login_response_json['access_token']
-    refresh_token = login_response_json['refresh_token']
+    access_token = login_response_json['user']['access_token']
+    refresh_token = login_response_json['user']['refresh_token']
 
     # ping logout1 to revoke access token
     access_header = {'Authorization': 'Bearer ' + access_token}
@@ -95,8 +95,8 @@ def test_logout_access_expired(testing_client: FlaskClient,
     sleep(1.1)  # sleep for 1.1 second to allow access_token to expire
 
     # extract tokens
-    access_token = login_response_json['access_token']
-    refresh_token = login_response_json['refresh_token']
+    access_token = login_response_json['user']['access_token']
+    refresh_token = login_response_json['user']['refresh_token']
 
     # ping logout1 to revoke access token, but expect token to be expired
     # NOTE: token is not revoked, since its already expired
@@ -163,8 +163,8 @@ def test_logout_refresh_expired(testing_client: FlaskClient,
     sleep(1.1)  # sleep for 1.1 second to allow access_token to expire
 
     # extract tokens
-    access_token = login_response_json['access_token']
-    refresh_token = login_response_json['refresh_token']
+    access_token = login_response_json['user']['access_token']
+    refresh_token = login_response_json['user']['refresh_token']
 
     # ping logout1 to revoke access token, but expect token to be expired
     # NOTE: token is not revoked, since its already expired

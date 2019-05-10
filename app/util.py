@@ -70,3 +70,26 @@ def prune_database():
     for token in expired:
         db.session.delete(token)
     db.session.commit()
+
+
+# import squareconnect
+# from squareconnect.apis.checkout_api import CheckoutApi
+# from squareconnect.models import CreateOrderRequest, CreateCheckoutRequest, Order, OrderLineItem, OrderLineItemTax
+# from squareconnect.models.catalog_object import CatalogObject
+# from squareconnect.models.catalog_item import CatalogItem
+# import random
+# import string
+
+# def gen_idem_key():
+#     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(50))
+
+# location_id = "MTZM29QGKWNXR"
+# taxes = [OrderLineItemTax("ZRM55UG4RO6IX4P3DXJ57LQA")]
+# line_items = [OrderLineItem(quantity="1", catalog_object_id="BLAN4C7GQWTEK7FB76VR7Q5M", taxes=taxes)]
+# order = Order(location_id=location_id, line_items=line_items) #, customer_id=None)
+# order_request = CreateOrderRequest(order=order, idempotency_key=gen_idem_key())
+# body = CreateCheckoutRequest(idempotency_key=gen_idem_key(), order=order_request)
+# api_instance = CheckoutApi()
+# api_instance.api_client.configuration.access_token = "EAAAELnNrHItrIbp3oFET70bzmBMUTN5ZAoHry-qz5ukbNZOclIGX3vYx2AuRVgm"
+# checkout = api_instance.create_checkout(location_id=location_id, body=body).checkout
+# print(checkout.checkout_page_url)

@@ -27,6 +27,7 @@ def test_login_success(testing_client: FlaskClient, testing_db: SQLAlchemy):
     assert status_code == 200
     assert response_json['msg'] == 'User {} logged in successfully'.format(
         test_customer['email'])
+    assert response_json['user']['id'] == 1
     assert response_json['user']['email'] == test_customer['email']
     assert response_json['user']['first_name'] == test_customer['first_name']
     assert response_json['user']['last_name'] == test_customer['last_name']

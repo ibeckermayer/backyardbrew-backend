@@ -18,7 +18,7 @@ def test_generate_checkout_url(testing_client: FlaskClient):
                     'name': item['name'],
                     'variation': variation,
                     'tax_ids': item['tax_ids'],
-                    'quantity': "1"
+                    'quantity': 1
                 }
                 cart['items'].append(cart_item)
         return cart

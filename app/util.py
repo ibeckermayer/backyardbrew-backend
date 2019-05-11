@@ -177,7 +177,7 @@ def square_get_checkout_url(cart: dict) -> dict:
     # go through each item in cart and add a corresponding line_item to line_items
     line_items = []
     for item in cart['items']:
-        quantity = item['quantity']
+        quantity = str(item['quantity'])
         catalog_object_id = item['variation']['id']
         taxes = [OrderLineItemTax(tax_id) for tax_id in item['tax_ids']]
         line_item = OrderLineItem(quantity=quantity,
@@ -203,15 +203,3 @@ def square_get_checkout_url(cart: dict) -> dict:
                                        body=body).checkout.checkout_page_url
 
     return {'msg': 'Checkout page created', 'url': url}
-
-
-# location_id = "MTZM29QGKWNXR"
-# taxes = [OrderLineItemTax("ZRM55UG4RO6IX4P3DXJ57LQA")]
-# line_items = [OrderLineItem(quantity="1", catalog_object_id="BLAN4C7GQWTEK7FB76VR7Q5M", taxes=taxes)]
-# order = Order(location_id=location_id, line_items=line_items) #, customer_id=None)
-# order_request = CreateOrderRequest(order=order, idempotency_key=gen_idem_key())
-# body = CreateCheckoutRequest(idempotency_key=gen_idem_key(), order=order_request)
-# api_instance = CheckoutApi()
-# api_instance.api_client.configuration.access_token = "EAAAELnNrHItrIbp3oFET70bzmBMUTN5ZAoHry-qz5ukbNZOclIGX3vYx2AuRVgm"
-# checkout = api_instance.create_checkout(location_id=location_id, body=body).checkout
-# print(checkout.checkout_page_url)

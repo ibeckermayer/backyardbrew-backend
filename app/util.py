@@ -1,15 +1,28 @@
+import squareconnect
+import random
+import string
+from typing import List
 from app import db, jwt
 from flask_jwt_extended import decode_token
 from datetime import datetime
 from app.models import TokenBlacklist
 from sqlalchemy.orm.exc import NoResultFound
-import squareconnect
 from squareconnect.apis.catalog_api import CatalogApi
-from squareconnect.models import SearchCatalogObjectsRequest
-from squareconnect.models.catalog_object import CatalogObject
-from squareconnect.models.catalog_item import CatalogItem
-from typing import List
-from config import SQUARE_ACCESS_TOKEN
+from squareconnect.apis.checkout_api import CheckoutApi
+from squareconnect.models import (SearchCatalogObjectsRequest,
+                                  CreateOrderRequest, CreateCheckoutRequest,
+                                  Order, OrderLineItem, OrderLineItemTax,
+                                  CatalogObject, CatalogItem)
+from config import SQUARE_ACCESS_TOKEN, SQUARE_LOCATION_ID
+
+
+def gen_idem_key():
+    '''
+    Helper function to generate and idempotency key for use with Square's api
+    '''
+    return ''.join(random.SystemRandom().choice(string.ascii_uppercase +
+                                                string.digits)
+                   for _ in range(50))
 
 
 def _epoch_utc_to_datetime(epoch_utc: float):
@@ -157,16 +170,40 @@ def square_get_full_catalog() -> dict:
     }
 
 
-# import squareconnect
-# from squareconnect.apis.checkout_api import CheckoutApi
-# from squareconnect.models import CreateOrderRequest, CreateCheckoutRequest, Order, OrderLineItem, OrderLineItemTax
-# from squareconnect.models.catalog_object import CatalogObject
-# from squareconnect.models.catalog_item import CatalogItem
-# import random
-# import string
+def square_get_checkout_url(cart: dict) -> dict:
+    '''
+    uses CheckoutApi to get a url to point the customer to for checkout
+    '''
+    # go through each item in cart and add a corresponding line_item to line_items
+    line_items = []
+    for item in cart['items']:
+        quantity = item['quantity']
+        catalog_object_id = item['variation']['id']
+        taxes = [OrderLineItemTax(tax_id) for tax_id in item['tax_ids']]
+        line_item = OrderLineItem(quantity=quantity,
+                                  catalog_object_id=catalog_object_id,
+                                  taxes=taxes)
+        line_items.append(line_item)
 
-# def gen_idem_key():
-#     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(50))
+    # create an order with these line_items
+    order = Order(location_id=SQUARE_LOCATION_ID, line_items=line_items)
+
+    # create an order request with this order
+    order_request = CreateOrderRequest(order=order,
+                                       idempotency_key=gen_idem_key())
+
+    # create a checkout request with this order request
+    body = CreateCheckoutRequest(idempotency_key=gen_idem_key(),
+                                 order=order_request,
+                                 ask_for_shipping_address=True)
+
+    api_instance = CheckoutApi()
+    api_instance.api_client.configuration.access_token = SQUARE_ACCESS_TOKEN
+    url = api_instance.create_checkout(location_id=SQUARE_LOCATION_ID,
+                                       body=body).checkout.checkout_page_url
+
+    return {'msg': 'Checkout page created', 'url': url}
+
 
 # location_id = "MTZM29QGKWNXR"
 # taxes = [OrderLineItemTax("ZRM55UG4RO6IX4P3DXJ57LQA")]

@@ -7,7 +7,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 jwt_required, jwt_refresh_token_required,
                                 get_jwt_identity, get_raw_jwt)
 from app.util import (add_token_to_database, is_token_revoked, revoke_token,
-                      square_get_full_catalog)
+                      square_get_full_catalog, square_get_checkout_url)
 
 
 class UserRegistrationEndpoint(Resource):
@@ -150,6 +150,18 @@ class FullCatalog(Resource):
         return square_get_full_catalog()
 
 
+class GenerateCheckoutUrl(Resource):
+    '''
+    accepts a cart and returns a checkout url for that cart
+    TODO: make jwt_optional to attribute order with user_id (get_jwt_identity, associate id, put that in request to square for later search)
+    '''
+
+    def post(self):
+        req_json = request.get_json()
+        cart = req_json
+        return square_get_checkout_url(cart)
+
+
 # Define our callback function to check if a token has been revoked or not
 @jwt.token_in_blacklist_loader
 def check_if_token_revoked(decoded_token):
@@ -164,5 +176,6 @@ resources_dict = {
     '/api/logout1': Logout1Endpoint,
     '/api/logout2': Logout2Endpoint,
     '/api/feedback': FeedbackEndpoint,
-    '/api/fullcatalog': FullCatalog
+    '/api/fullcatalog': FullCatalog,
+    '/api/generate_checkout_url': GenerateCheckoutUrl
 }

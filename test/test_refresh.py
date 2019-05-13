@@ -92,5 +92,5 @@ def test_jwt_refresh_expired(testing_client: FlaskClient,
 
     # should fail
     response_json = json.loads(response.data)
-    # assert response.status_code == 401
+    assert response.status_code == 401
     assert response_json['msg'] == 'Token has expired'

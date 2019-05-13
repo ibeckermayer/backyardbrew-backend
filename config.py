@@ -18,6 +18,26 @@ class DevelopmentConfig(Config):
     # SQLALCHEMY_DATABASE_URI = 'postgresql:///backyardbrew_dev_db'  # uncomment for Ubuntu
 
 
+class ImmediateJwtExpireConfig(Config):
+    """Configurations for Manually testing immediate jwt expiration."""
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/backyardbrew_dev_db'  # uncomment for OSX
+    # SQLALCHEMY_DATABASE_URI = 'postgresql:///backyardbrew_dev_db'  # uncomment for Ubuntu
+    JWT_ACCESS_TOKEN_EXPIRES = relativedelta.relativedelta(
+        microseconds=1)  # access token expires in 1 microsecond (minimum)
+    JWT_REFRESH_TOKEN_EXPIRES = relativedelta.relativedelta(
+        microseconds=1)  # refresh token expires in 1 microsecond (minimum)
+
+
+class ThreeSecJwtAccessExpireConfig(Config):
+    """Configurations for manually testing jwt access expiring (quickly)"""
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/backyardbrew_dev_db'  # uncomment for OSX
+    # SQLALCHEMY_DATABASE_URI = 'postgresql:///backyardbrew_dev_db'  # uncomment for Ubuntu
+    JWT_ACCESS_TOKEN_EXPIRES = relativedelta.relativedelta(
+        seconds=3)  # access token expires in 1 microsecond (minimum)
+
+
 class TestingConfig(Config):
     """Configurations for Testing, with a separate test database."""
     TESTING = True
@@ -41,7 +61,9 @@ app_config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
     'staging': StagingConfig,
-    'production': ProductionConfig
+    'production': ProductionConfig,
+    'immediatejwtexpire': ImmediateJwtExpireConfig,
+    'threesecjwtexpire': ThreeSecJwtAccessExpireConfig
 }
 
 SQUARE_ACCESS_TOKEN = os.getenv('SQUARE_ACCESS_TOKEN')

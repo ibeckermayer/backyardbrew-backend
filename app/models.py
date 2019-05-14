@@ -15,6 +15,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(128))
     registered_on = db.Column(db.DateTime, nullable=True)
     role = db.Column(db.Integer, nullable=False)
+    square_customer_id = db.Column(db.String(64), nullable=True, unique=True)
 
     def __init__(self,
                  first_name: str,

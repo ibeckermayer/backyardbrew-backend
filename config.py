@@ -35,7 +35,7 @@ class ThreeSecJwtAccessExpireConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/backyardbrew_dev_db'  # uncomment for OSX
     # SQLALCHEMY_DATABASE_URI = 'postgresql:///backyardbrew_dev_db'  # uncomment for Ubuntu
     JWT_ACCESS_TOKEN_EXPIRES = relativedelta.relativedelta(
-        seconds=3)  # access token expires in 1 microsecond (minimum)
+        seconds=3)  # access token expires in 3 seconds
 
 
 class TestingConfig(Config):

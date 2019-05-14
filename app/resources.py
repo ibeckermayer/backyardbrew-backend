@@ -7,7 +7,8 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 jwt_required, jwt_refresh_token_required,
                                 get_jwt_identity, get_raw_jwt)
 from app.util import (add_token_to_database, is_token_revoked, revoke_token,
-                      square_get_full_catalog, square_get_checkout_url)
+                      square_get_full_catalog, square_get_checkout_url,
+                      square_create_user)
 
 
 class UserRegistrationEndpoint(Resource):
@@ -19,6 +20,11 @@ class UserRegistrationEndpoint(Resource):
                     last_name=user_json['last_name'],
                     email=user_json['email'],
                     plaintext_password=user_json['plaintext_password'])
+        square_customer_id = square_create_user(given_name=user.first_name,
+                                                family_name=user.last_name,
+                                                email_address=user.email,
+                                                reference_id=user.id)
+        user.square_customer_id = square_customer_id
         user.save_new()
         return {'msg': 'User {} created successfully'.format(user.email)}
 

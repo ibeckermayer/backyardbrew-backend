@@ -7,11 +7,12 @@ from flask_jwt_extended import decode_token
 from datetime import datetime
 from app.models import TokenBlacklist
 from sqlalchemy.orm.exc import NoResultFound
-from squareconnect.apis import (CatalogApi, CheckoutApi)
+from squareconnect.apis import (CatalogApi, CheckoutApi, CustomersApi)
 from squareconnect.models import (SearchCatalogObjectsRequest,
                                   CreateOrderRequest, CreateCheckoutRequest,
                                   Order, OrderLineItem, OrderLineItemTax,
-                                  CatalogObject, CatalogItem)
+                                  CatalogObject, CatalogItem,
+                                  CreateCustomerRequest)
 from config import SQUARE_ACCESS_TOKEN, SQUARE_LOCATION_ID
 
 
@@ -205,3 +206,19 @@ def square_get_checkout_url(cart: dict) -> dict:
                                        body=body).checkout.checkout_page_url
 
     return {'msg': 'Checkout page created', 'url': url}
+
+
+def square_create_user(given_name: str, family_name: str, email_address: str,
+                       reference_id: int) -> str:
+    '''
+    on registration of new user, register user with square, and return the
+    customer_id as given by square in order to save as cross reference in our database
+    '''
+    body = CreateCustomerRequest(idempotency_key=gen_idem_key(),
+                                 given_name=given_name,
+                                 family_name=family_name,
+                                 email_address=email_address,
+                                 reference_id=reference_id)
+    api_instance = CustomersApi()
+    api_instance.api_client.configuration.access_token = SQUARE_ACCESS_TOKEN
+    return api_instance.create_customer(body=body).customer.id

@@ -7,8 +7,7 @@ from flask_jwt_extended import decode_token
 from datetime import datetime
 from app.models import TokenBlacklist
 from sqlalchemy.orm.exc import NoResultFound
-from squareconnect.apis.catalog_api import CatalogApi
-from squareconnect.apis.checkout_api import CheckoutApi
+from squareconnect.apis import (CatalogApi, CheckoutApi)
 from squareconnect.models import (SearchCatalogObjectsRequest,
                                   CreateOrderRequest, CreateCheckoutRequest,
                                   Order, OrderLineItem, OrderLineItemTax,
@@ -179,7 +178,10 @@ def square_get_checkout_url(cart: dict) -> dict:
     for item in cart['items']:
         quantity = str(item['quantity'])
         catalog_object_id = item['variation']['id']
-        taxes = [OrderLineItemTax(tax_id) for tax_id in item['tax_ids']]
+        taxes = [
+            OrderLineItemTax(catalog_object_id=tax_id)
+            for tax_id in item['tax_ids']
+        ]
         line_item = OrderLineItem(quantity=quantity,
                                   catalog_object_id=catalog_object_id,
                                   taxes=taxes)

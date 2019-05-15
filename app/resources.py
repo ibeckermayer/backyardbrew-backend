@@ -5,7 +5,7 @@ from app import db, jwt
 from app.errors import EmailAlreadyInUse, UserDNE, PasswordIncorrect, UserNotAdmin
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 jwt_required, jwt_refresh_token_required,
-                                get_jwt_identity, get_raw_jwt)
+                                get_jwt_identity, get_raw_jwt, jwt_optional)
 from app.util import (add_token_to_database, is_token_revoked, revoke_token,
                       square_get_full_catalog, square_get_checkout_url,
                       square_create_user)
@@ -162,10 +162,17 @@ class GenerateCheckoutUrl(Resource):
     TODO: make jwt_optional to attribute order with user_id (get_jwt_identity, associate id, put that in request to square for later search)
     '''
 
+    @jwt_optional
     def post(self):
+        square_customer_id = None
+        email = get_jwt_identity()
+        if (email):
+            user = User.get(email)
+            square_customer_id = user.square_customer_id
+
         req_json = request.get_json()
         cart = req_json
-        return square_get_checkout_url(cart)
+        return square_get_checkout_url(cart, square_customer_id)
 
 
 # Define our callback function to check if a token has been revoked or not

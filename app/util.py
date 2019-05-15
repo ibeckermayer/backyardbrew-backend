@@ -170,7 +170,7 @@ def square_get_full_catalog() -> dict:
     }
 
 
-def square_get_checkout_url(cart: dict) -> dict:
+def square_get_checkout_url(cart: dict, square_customer_id: str) -> dict:
     '''
     uses CheckoutApi to get a url to point the customer to for checkout
     '''
@@ -189,7 +189,9 @@ def square_get_checkout_url(cart: dict) -> dict:
         line_items.append(line_item)
 
     # create an order with these line_items
-    order = Order(location_id=SQUARE_LOCATION_ID, line_items=line_items)
+    order = Order(location_id=SQUARE_LOCATION_ID,
+                  line_items=line_items,
+                  customer_id=square_customer_id)
 
     # create an order request with this order
     order_request = CreateOrderRequest(order=order,

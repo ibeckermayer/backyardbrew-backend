@@ -109,7 +109,7 @@ class FeedbackEndpoint(Resource):
             html_content='<div>{}</div><div>reply to: {}</div>'.format(
                 text, email))
         try:
-            sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+            sg = SendGridAPIClient(os.getenv('SENDGRID_API_KEY'))
             response = sg.send(message)
             print(response.status_code)
             print(response.body)

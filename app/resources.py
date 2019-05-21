@@ -9,6 +9,9 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
 from app.util import (add_token_to_database, is_token_revoked, revoke_token,
                       square_get_full_catalog, square_get_checkout_url,
                       square_create_user)
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+import os
 
 
 class UserRegistrationEndpoint(Resource):
@@ -89,13 +92,31 @@ class Logout2Endpoint(Resource):
 class FeedbackEndpoint(Resource):
     def put(self):
         '''
-        submit new piece of feedback
+        submit new piece of feedback and send an email to customer service email
         '''
         feedback_json = request.get_json()
-        feedback = Feedback(name=feedback_json['name'],
-                            email=feedback_json['email'],
-                            text=feedback_json['text'])
+        name = feedback_json['name']
+        email = feedback_json['email']
+        text = feedback_json['text']
+
+        feedback = Feedback(name=name, email=email, text=text)
         feedback.save_new()
+
+        message = Mail(
+            from_email='ibeckermayer@gmail.com',
+            to_emails='ibeckermayer@gmail.com',
+            subject='New support ticket from {}'.format(name),
+            html_content='<div>{}</div><div>reply to: {}</div>'.format(
+                text, email))
+        try:
+            sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+            response = sg.send(message)
+            print(response.status_code)
+            print(response.body)
+            print(response.headers)
+        except Exception as e:
+            print(e.message)
+
         return {'msg': 'Feedback submitted'}
 
     @jwt_required

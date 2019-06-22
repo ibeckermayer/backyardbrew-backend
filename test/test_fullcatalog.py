@@ -7,8 +7,8 @@ ENDPOINT = 'api/fullcatalog'
 
 
 def test_all_item(testing_client: FlaskClient, testing_db: SQLAlchemy):
-    CATEGORIES = ['Coffee', 'Black Tea',
-                  'Brew']  # list of all the categories so far
+    # list of all the categories so far
+    CATEGORIES = ['Cafe', 'Coffee', 'Black Tea', 'Brew']
     response = testing_client.get(ENDPOINT)
     response_json = json.loads(response.data)
     assert response.status_code == 200
